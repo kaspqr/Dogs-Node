@@ -26,13 +26,14 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     picture: {
-        type: String,
+        type: String
     },
     bio: {
-        type: String,
+        type: String
     },
     location: {
         type: String,
+        required: true
     }
 })
 
