@@ -9,6 +9,10 @@ const messageSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Conversation'
     },
+    time: {
+        type: Date,
+        default: Date.now
+    },
     text: {
         type: String,
         required: true
