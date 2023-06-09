@@ -15,4 +15,4 @@ const advertisementReportSchema = new mongoose.Schema({
     }
 })
 
-module.export = mongoose.model('AdvertisementReport', advertisementReportSchema)
+module.exports = mongoose.model('AdvertisementReport', advertisementReportSchema)

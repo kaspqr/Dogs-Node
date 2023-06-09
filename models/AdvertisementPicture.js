@@ -10,4 +10,4 @@ const advertisementPictureSchema = new mongoose.Schema({
     }
 })
 
-module.export = mongoose.model('AdvertisementPicture', advertisementPictureSchema)
+module.exports = mongoose.model('AdvertisementPicture', advertisementPictureSchema)

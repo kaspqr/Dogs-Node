@@ -3,7 +3,8 @@ const mongoose = require('mongoose')
 const dogSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true
     },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
@@ -17,8 +18,8 @@ const dogSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Dog'
     },
-    gender: {
-        type: String,
+    female: {
+        type: Boolean,
         required: true
     },
     litter: {
@@ -50,6 +51,17 @@ const dogSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    microchipped: {
+        type: Boolean,
+        default: false
+    },
+    chipnumber: {
+        type: String
+    },
+    passport: {
+        type: Boolean,
+        default: false
+    },
     info: {
         type: String
     },
@@ -58,4 +70,4 @@ const dogSchema = new mongoose.Schema({
     }
 })
 
-module.export = mongoose.model('Dog', dogSchema)
+module.exports = mongoose.model('Dog', dogSchema)

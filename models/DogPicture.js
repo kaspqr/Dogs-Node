@@ -10,4 +10,4 @@ const dogPictureSchema = new mongoose.Schema({
     }
 })
 
-module.export = mongoose.model('DogPicture', dogPictureSchema)
+module.exports = mongoose.model('DogPicture', dogPictureSchema)

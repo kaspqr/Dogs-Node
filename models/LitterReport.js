@@ -15,4 +15,4 @@ const litterReportSchema = new mongoose.Schema({
     }
 })
 
-module.export = mongoose.model('LitterReport', litterReportSchema)
+module.exports = mongoose.model('LitterReport', litterReportSchema)

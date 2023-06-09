@@ -31,4 +31,4 @@ const advertisementSchema = new mongoose.Schema({
     }
 })
 
-module.export = mongoose.model('Advertisement', advertisementSchema)
+module.exports = mongoose.model('Advertisement', advertisementSchema)

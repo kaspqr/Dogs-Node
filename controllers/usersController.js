@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt')
 // @access Private
 const getAllUsers = asyncHandler(async (req, res) => {
     const users = await User.find().select('-password').lean()
-    if (!users) {
+    if (!users?.length) {
         return res.status(400).json({ message: 'No users found' })
     }
     res.json(users)
@@ -30,6 +30,14 @@ const createNewUser = asyncHandler(async (req, res) => {
 
     if (duplicate) {
         return res.status(409).json({ message: 'Duplicate username' })
+    }
+
+    // Check for email duplicate
+    const emailDuplicate = await User.findOne({ email }).lean().exec()
+
+    // Allow updates to the original user
+    if (emailDuplicate) {
+        return res.status(409).json({ message: 'Duplicate email' })
     }
 
     // Hash password
@@ -116,9 +124,14 @@ const deleteUser = asyncHandler(async (req, res) => {
     }
 
     const user = await User.findById(id).exec()
+    const dogs = await Dog.find({ "user": id }).lean().exec()
 
     if (!user) {
         return res.status(400).json({ message: 'User not found' })
+    }
+
+    if (dogs.length) {
+        dogs.delete()
     }
 
     const result = await user.deleteOne()

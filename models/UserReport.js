@@ -15,4 +15,4 @@ const userReportSchema = new mongoose.Schema({
     }
 })
 
-module.export = mongoose.model('UserReport', userReportSchema)
+module.exports = mongoose.model('UserReport', userReportSchema)

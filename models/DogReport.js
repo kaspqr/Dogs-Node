@@ -15,4 +15,4 @@ const dogReportSchema = new mongoose.Schema({
     }
 })
 
-module.export = mongoose.model('DogReport', dogReportSchema)
+module.exports = mongoose.model('DogReport', dogReportSchema)
