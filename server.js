@@ -34,6 +34,7 @@ app.use('/litters', require('./routes/litterRoutes'))
 app.use('/litterreports', require('./routes/litterReportRoutes'))
 app.use('/conversations', require('./routes/conversationRoutes'))
 app.use('/messages', require('./routes/messageRoutes'))
+app.use('/messagereports', require('./routes/messageReportRoutes'))
 
 app.all('*', (req, res) => {
     res.status(404)

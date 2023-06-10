@@ -21,7 +21,7 @@ const createNewUser = asyncHandler(async (req, res) => {
     const { username, password, roles, name, email, location } = req.body
 
     // Confirm data
-    if (!username || !password || !Array.isArray(roles) || !roles.length || !name || !email || !location) {
+    if (!username?.length || !password?.length || !Array.isArray(roles) || !roles?.length || !name?.length || !email?.length || !location?.length) {
         return res.status(400).json({ message: 'All fields are required' })
     }
 
@@ -62,7 +62,7 @@ const updateUser = asyncHandler(async (req, res) => {
     const { id, username, roles, active, password, name, email, location, bio, picture } = req.body
 
     // Confirm data
-    if (!id || !username || !Array.isArray(roles) || !roles.length || typeof active !== 'boolean' || !email || !name || !location) {
+    if (!id || !username || !Array.isArray(roles) || !roles?.length || typeof active !== 'boolean' || !email || !name || !location) {
         return res.status(400).json({ message: 'All fields are required' })
     }
 
@@ -76,7 +76,7 @@ const updateUser = asyncHandler(async (req, res) => {
     const duplicate = await User.findOne({ username }).lean().exec()
 
     // Allow updates to the original user
-    if (duplicate && duplicate?._id.toString() !== id) {
+    if (duplicate && duplicate?._id?.toString() !== id) {
         return res.status(409).json({ message: 'Duplicate username' })
     }
 
@@ -84,7 +84,7 @@ const updateUser = asyncHandler(async (req, res) => {
     const emailDuplicate = await User.findOne({ email }).lean().exec()
 
     // Allow updates to the original user
-    if (emailDuplicate && emailDuplicate?._id.toString() !== id) {
+    if (emailDuplicate && emailDuplicate?._id?.toString() !== id) {
         return res.status(409).json({ message: 'Duplicate email' })
     }
 
@@ -100,7 +100,7 @@ const updateUser = asyncHandler(async (req, res) => {
         user.password = await bcrypt.hash(password, 10) // salt rounds
     }
 
-    if (bio) {
+    if (bio?.length) {
         user.bio = bio
     }
 
@@ -130,7 +130,7 @@ const deleteUser = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'User not found' })
     }
 
-    if (dogs.length) {
+    if (dogs?.length) {
         dogs.delete()
     }
 

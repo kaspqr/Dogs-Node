@@ -20,7 +20,7 @@ const createNewUserReport = asyncHandler(async (req, res) => {
     const { reportee, reporter, text } = req.body
 
     // Confirm data
-    if (!reportee || !reporter || !text.length) {
+    if (!reportee || !reporter || !text?.length) {
         return res.status(400).json({ message: 'Reportee, reporter and text is required' })
     }
 
@@ -41,7 +41,7 @@ const createNewUserReport = asyncHandler(async (req, res) => {
     const userReport = await UserReport.create(userReportObject)
 
     if (userReport) { //Created
-        res.status(201).json({ message: `User report with ID ${userReport.id} created by user ${reporter}` })
+        res.status(201).json({ message: `User report with ID ${userReport?.id} created by user ${reporter}` })
     } else {
         res.status(400).json({ message: 'Invalid user report data received' })
     }

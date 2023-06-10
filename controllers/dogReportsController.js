@@ -21,7 +21,7 @@ const createNewDogReport = asyncHandler(async (req, res) => {
     const { dog, reporter, text } = req.body
 
     // Confirm data
-    if (!dog || !reporter || !text.length) {
+    if (!dog || !reporter || !text?.length) {
         return res.status(400).json({ message: 'Dog, reporter and text is required' })
     }
 

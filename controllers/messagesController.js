@@ -21,7 +21,7 @@ const createNewMessage = asyncHandler(async (req, res) => {
     const { sender, conversation, text, receiver } = req.body
 
     // Confirm data
-    if (!sender || (!conversation && !receiver) || !text.length) {
+    if (!sender || (!conversation && !receiver) || !text?.length) {
         return res.status(400).json({ message: 'Sender, text and either conversation or receiver is required' })
     }
 
@@ -51,7 +51,7 @@ const createNewMessage = asyncHandler(async (req, res) => {
         }
 
         const newConversation = await Conversation.create({ sender, receiver })
-        messageObject.conversation = newConversation.id
+        messageObject.conversation = newConversation?.id
     } else {
         const isConversation = await Conversation.findById(conversation).exec()
 
@@ -59,7 +59,7 @@ const createNewMessage = asyncHandler(async (req, res) => {
             return res.status(400).json({ message: `Conversation with id ${conversation} does not exist` })
         }
 
-        if (sender !== isConversation.sender.toString() && sender !== isConversation.receiver.toString()) {
+        if (sender !== isConversation?.sender?.toString() && sender !== isConversation?.receiver?.toString()) {
             return res.status(400).json({ message: `Sender ${sender} not part of conversation ${conversation}` })
         }
 
@@ -71,7 +71,7 @@ const createNewMessage = asyncHandler(async (req, res) => {
     const message = await Message.create(messageObject)
 
     if (message) { //Created
-        res.status(201).json({ message: `Message with ID ${message.id} created` })
+        res.status(201).json({ message: `Message with ID ${message?.id} created` })
     } else {
         res.status(400).json({ message: 'Invalid message data received' })
     }

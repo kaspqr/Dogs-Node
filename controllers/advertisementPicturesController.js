@@ -20,7 +20,7 @@ const createNewAdvertisementPicture = asyncHandler(async (req, res) => {
     const { advertisement, picture } = req.body
 
     // Confirm data
-    if (!advertisement || !picture.length) {
+    if (!advertisement || !picture?.length) {
         return res.status(400).json({ message: 'Advertisement and picture is required' })
     }
 
@@ -36,7 +36,7 @@ const createNewAdvertisementPicture = asyncHandler(async (req, res) => {
     const advertisementPicture = await AdvertisementPicture.create(advertisementPictureObject)
 
     if (advertisementPicture) { //Created
-        res.status(201).json({ message: `Advertisement picture with ID ${advertisementPicture.id} created for advertisement ${advertisement}` })
+        res.status(201).json({ message: `Advertisement picture with ID ${advertisementPicture?.id} created for advertisement ${advertisement}` })
     } else {
         res.status(400).json({ message: 'Invalid advertisement picture data received' })
     }

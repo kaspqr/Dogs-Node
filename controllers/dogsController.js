@@ -97,7 +97,7 @@ const createNewDog = asyncHandler(async (req, res) => {
     const dog = await Dog.create(dogObject)
 
     if (dog) { //Created
-        res.status(201).json({ message: `New dog with id ${dog.id} created by user id ${user}` })
+        res.status(201).json({ message: `New dog with id ${dog?.id} created by user id ${user}` })
     } else {
         res.status(400).json({ message: 'Invalid dog data received' })
     }
@@ -205,7 +205,7 @@ const deleteDog = asyncHandler(async (req, res) => {
     }
 
     // If the dog did have a litter, delete the litter also
-    if (litters.length) {
+    if (litters?.length) {
         litters.delete()
     }
 

@@ -26,7 +26,7 @@ const createNewAdvertisement = asyncHandler(async (req, res) => {
 
     const advertisementObject = { premium, poster, title, type, price }
 
-    if (info) {
+    if (typeof info === 'string' && info?.length) {
         advertisementObject.info = info
     }
 
@@ -34,7 +34,7 @@ const createNewAdvertisement = asyncHandler(async (req, res) => {
     const advertisement = await Advertisement.create(advertisementObject)
 
     if (advertisement) { //Created
-        res.status(201).json({ message: `New advertisement ${title} with ID ${advertisement.id} created` })
+        res.status(201).json({ message: `New advertisement ${title} with ID ${advertisement?.id} created` })
     } else {
         res.status(400).json({ message: 'Invalid advertisement data received' })
     }
@@ -83,7 +83,7 @@ const updateAdvertisement = asyncHandler(async (req, res) => {
 
     const updatedAdvertisement = await advertisement.save()
 
-    res.json({ message: `Advertisement ${updatedAdvertisement.title} with ID ${id} updated` })
+    res.json({ message: `Advertisement ${updatedAdvertisement?.title} with ID ${id} updated` })
 })
 
 // @desc Delete advertisement

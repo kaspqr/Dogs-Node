@@ -20,7 +20,7 @@ const createNewDogPicture = asyncHandler(async (req, res) => {
     const { dog, picture } = req.body
 
     // Confirm data
-    if (!dog || !picture.length) {
+    if (!dog || !picture?.length) {
         return res.status(400).json({ message: 'Dog and picture is required' })
     }
 
@@ -36,7 +36,7 @@ const createNewDogPicture = asyncHandler(async (req, res) => {
     const dogPicture = await DogPicture.create(dogPictureObject)
 
     if (dogPicture) { //Created
-        res.status(201).json({ message: `Dog picture with ID ${dogPicture.id} created for dog ${dog}` })
+        res.status(201).json({ message: `Dog picture with ID ${dogPicture?.id} created for dog ${dog}` })
     } else {
         res.status(400).json({ message: 'Invalid dog picture data received' })
     }

@@ -1,6 +1,7 @@
 const MessageReport = require('../models/MessageReport')
 const User = require('../models/User')
 const Message = require('../models/Message')
+const Conversation = require('../models/Conversation')
 const asyncHandler = require('express-async-handler')
 
 // @desc Get all message reports
@@ -8,73 +9,101 @@ const asyncHandler = require('express-async-handler')
 // @access Private
 const getAllMessageReports = asyncHandler(async (req, res) => {
     const messageReports = await MessageReport.find().lean()
-    if (!litterReports?.length) {
-        return res.status(400).json({ message: 'No litter reports found' })
+    if (!messageReports?.length) {
+        return res.status(400).json({ message: 'No message reports found' })
     }
-    res.json(litterReports)
+    res.json(messageReports)
 })
 
-// @desc Create new litter report
-// @route POST /litterreports
+// @desc Create new message report
+// @route POST /messagereports
 // @access Private
-const createNewLitterReport = asyncHandler(async (req, res) => {
-    const { litter, reporter, text } = req.body
+const createNewMessageReport = asyncHandler(async (req, res) => {
+    const { message, reporter, text } = req.body
 
     // Confirm data
-    if (!litter || !reporter || !text.length) {
-        return res.status(400).json({ message: 'Litter, reporter and text is required' })
+    if (!message || !reporter || !text?.length) {
+        return res.status(400).json({ message: 'Message, reporter and text is required' })
     }
 
-    const reportedLitter = await Litter.findById(litter)
-    const litterReporter = await User.findById(reporter)
+    const reportedMessage = await Message.findById(message)
+    const messageReporter = await User.findById(reporter)
+    const isReported = await MessageReport.findOne({ message }).lean().exec()
 
-    if (!reportedLitter) {
-        return res.status(400).json({ message: `Litter with ID ${litter} does not exist` })
+    if (isReported) {
+        return res.status(400).json({ message: `Message with ID ${message} has already been reported` })
     }
 
-    if (!litterReporter) {
+    if (!reportedMessage) {
+        return res.status(400).json({ message: `Message with ID ${message} does not exist` })
+    }
+
+    if (!messageReporter) {
         return res.status(400).json({ message: `Reporter with user ID ${reporter} does not exist` })
     }
 
-    const litterReportObject = { litter, reporter, text }
+    const messageConversation = await Conversation.findById(reportedMessage?.conversation)
 
-    // Create and store new litter report
-    const litterReport = await LitterReport.create(litterReportObject)
+    if (!messageConversation) {
+        return res.status(400).json({ message: `Conversation with ID ${messageConversation} does not exist` })
+    }
 
-    if (litterReport) { //Created
-        res.status(201).json({ message: `Litter report with ID ${litterReport.id} created by user ${reporter}` })
+    const conversationReceiver = await User.findById(messageConversation?.receiver)
+    const conversationSender = await User.findById(messageConversation?.sender)
+
+    if (!conversationReceiver) {
+        return res.status(400).json({ message: `Conversation receiver with ID ${conversationReceiver?.id} does not exist` })
+    }
+
+    if (!conversationSender) {
+        return res.status(400).json({ message: `Conversation sender with ID ${conversationSender?.id} does not exist` })
+    }
+
+    if ((reporter !== conversationReceiver?.id?.toString() 
+        && reporter !== conversationSender?.id?.toString())
+        || reporter === reportedMessage?.sender?.toString()) {
+        return res.status(400).json({ message: `Reporter with user ID ${reporter} is not the receiver of message ${message}` })
+    }
+
+    const messageReportObject = { message, reporter, text }
+
+    // Create and store new message report
+    const messageReport = await MessageReport.create(messageReportObject)
+
+    if (messageReport) { //Created
+        res.status(201).json({ message: `Message report with ID ${messageReport.id} created by user ${reporter}` })
     } else {
-        res.status(400).json({ message: 'Invalid litter report data received' })
+        res.status(400).json({ message: 'Invalid message report data received' })
     }
 })
 
-// @desc No updating for litter reports
+// @desc No updating for message reports
 
-// @desc Delete litter report
-// @route DELETE /litterreports
+// @desc Delete message report
+// @route DELETE /messagereports
 // @access Private
-const deleteLitterReport = asyncHandler(async (req, res) => {
+const deleteMessageReport = asyncHandler(async (req, res) => {
     const { id } = req.body
 
     if (!id) {
-        return res.status(400).json({ message: 'Litter report ID Required' })
+        return res.status(400).json({ message: 'Message report ID Required' })
     }
 
-    const litterReport = await LitterReport.findById(id).exec()
+    const messageReport = await MessageReport.findById(id).exec()
 
-    if (!litterReport) {
-        return res.status(400).json({ message: 'Litter report not found' })
+    if (!messageReport) {
+        return res.status(400).json({ message: 'Message report not found' })
     }
 
-    const result = await litterReport.deleteOne()
+    const result = await messageReport.deleteOne()
 
-    const reply = `Litter report with ID ${result._id} deleted`
+    const reply = `Message report with ID ${result._id} deleted`
 
     res.json(reply)
 })
 
 module.exports = {
-    getAllLitterReports,
-    createNewLitterReport,
-    deleteLitterReport
+    getAllMessageReports,
+    createNewMessageReport,
+    deleteMessageReport
 }

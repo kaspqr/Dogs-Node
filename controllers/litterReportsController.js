@@ -21,7 +21,7 @@ const createNewLitterReport = asyncHandler(async (req, res) => {
     const { litter, reporter, text } = req.body
 
     // Confirm data
-    if (!litter || !reporter || !text.length) {
+    if (!litter || !reporter || !text?.length) {
         return res.status(400).json({ message: 'Litter, reporter and text is required' })
     }
 

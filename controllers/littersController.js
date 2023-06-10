@@ -40,7 +40,7 @@ const createNewLitter = asyncHandler(async (req, res) => {
     const litter = await Litter.create(litterObject)
 
     if (litter) { //Created
-        res.status(201).json({ message: `Female dog ${mother}'s new litter with ID ${litter.id} created` })
+        res.status(201).json({ message: `Female dog ${mother}'s new litter with ID ${litter?.id} created` })
     } else {
         res.status(400).json({ message: 'Invalid litter data received' })
     }

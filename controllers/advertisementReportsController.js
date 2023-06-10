@@ -21,7 +21,7 @@ const createNewAdvertisementReport = asyncHandler(async (req, res) => {
     const { advertisement, reporter, text } = req.body
 
     // Confirm data
-    if (!advertisement || !reporter || !text.length) {
+    if (!advertisement || !reporter || !text?.length) {
         return res.status(400).json({ message: 'Advertisement, reporter and text is required' })
     }
 
@@ -42,7 +42,7 @@ const createNewAdvertisementReport = asyncHandler(async (req, res) => {
     const advertisementReport = await AdvertisementReport.create(advertisementReportObject)
 
     if (advertisementReport) { //Created
-        res.status(201).json({ message: `Advertisement report with ID ${advertisementReport.id} created by user ${reporter}` })
+        res.status(201).json({ message: `Advertisement report with ID ${advertisementReport?.id} created by user ${reporter}` })
     } else {
         res.status(400).json({ message: 'Invalid advertisement report data received' })
     }
