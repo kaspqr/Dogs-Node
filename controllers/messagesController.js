@@ -39,10 +39,10 @@ const createNewMessage = asyncHandler(async (req, res) => {
         }
 
         const isReceiver = await User.findById(receiver).exec()
-        const isConversationReceiver = await Conversation.findOne({ "receiver": receiver }).lean().exec()
-        const isConversationSender = await Conversation.findOne({ "sender": receiver }).lean().exec()
+        const isConversationReceiver = await Conversation.findOne({ "receiver": receiver, "sender": sender }).lean().exec()
+        const isConversationSender = await Conversation.findOne({ "sender": receiver, "receiver": sender }).lean().exec()
 
-        if (isConversationReceiver === isConversationSender && isConversationReceiver) {
+        if (isConversationReceiver || isConversationSender) {
                 return res.status(400).json({ message: `User ${sender} already has a conversation with user ${receiver}` })
         }
 
@@ -59,8 +59,8 @@ const createNewMessage = asyncHandler(async (req, res) => {
             return res.status(400).json({ message: `Conversation with id ${conversation} does not exist` })
         }
 
-        if (sender !== isConversation.sender && sender !== isConversation.receiver) {
-            return res.status(400).json({ message: `Sender ${sender} is not part of conversation ${conversation}` })
+        if (sender !== isConversation.sender.toString() && sender !== isConversation.receiver.toString()) {
+            return res.status(400).json({ message: `Sender ${sender} not part of conversation ${conversation}` })
         }
 
         messageObject.conversation = conversation
