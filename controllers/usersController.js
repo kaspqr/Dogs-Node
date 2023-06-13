@@ -18,10 +18,10 @@ const getAllUsers = asyncHandler(async (req, res) => {
 // @route POST /users
 // @access Private
 const createNewUser = asyncHandler(async (req, res) => {
-    const { username, password, roles, name, email, location } = req.body
+    const { username, password, name, email, location } = req.body
 
     // Confirm data
-    if (!username?.length || !password?.length || !Array.isArray(roles) || !roles?.length || !name?.length || !email?.length || !location?.length) {
+    if (!username?.length || !password?.length || !name?.length || !email?.length || !location?.length) {
         return res.status(400).json({ message: 'All fields are required' })
     }
 
@@ -40,10 +40,13 @@ const createNewUser = asyncHandler(async (req, res) => {
         return res.status(409).json({ message: 'Duplicate email' })
     }
 
+    // Add user role
+    const roles = ["User"]
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10) // salt rounds
 
-    const userObject = { username, "password": hashedPassword, roles, name, email, location }
+    const userObject = { username, "password": hashedPassword, name, email, location, roles }
 
     // Create and store new user
     const user = await User.create(userObject)
@@ -62,7 +65,7 @@ const updateUser = asyncHandler(async (req, res) => {
     const { id, username, roles, active, password, name, email, location, bio, picture } = req.body
 
     // Confirm data
-    if (!id || !username || !Array.isArray(roles) || !roles?.length || typeof active !== 'boolean' || !email || !name || !location) {
+    if (!id || typeof active !== 'boolean' || !email || !name || !location) {
         return res.status(400).json({ message: 'All fields are required' })
     }
 
@@ -70,14 +73,6 @@ const updateUser = asyncHandler(async (req, res) => {
 
     if (!user) {
         return res.status(400).json({ message: 'User not found' })
-    }
-
-    // Check for duplicate
-    const duplicate = await User.findOne({ username }).lean().exec()
-
-    // Allow updates to the original user
-    if (duplicate && duplicate?._id?.toString() !== id) {
-        return res.status(409).json({ message: 'Duplicate username' })
     }
 
     // Check for email duplicate
@@ -88,8 +83,6 @@ const updateUser = asyncHandler(async (req, res) => {
         return res.status(409).json({ message: 'Duplicate email' })
     }
 
-    user.username = username
-    user.roles = roles
     user.active = active
     user.name = name
     user.email = email

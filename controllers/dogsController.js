@@ -110,7 +110,7 @@ const updateDog = asyncHandler(async (req, res) => {
     const { id, user, owner, mother, father, location, litter, heat, sterilized, birth, death, name, breed, info, active, microchipped, chipnumber, passport } = req.body
 
     // Confirm data
-    if (!id || !user || !breed || typeof active !== 'boolean') {
+    if (!id) {
         return res.status(400).json({ message: 'ID, administrative user ID, gender, breed and active status is required' })
     }
 
@@ -120,9 +120,18 @@ const updateDog = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'Dog not found' })
     }
 
-    dog.user = user
-    dog.active = active
-    dog.breed = breed
+
+    if (user) {
+        dog.user = user
+    }
+
+    if (active) {
+        dog.active = active
+    }
+
+    if (breed) {
+        dog.breed = breed
+    }
 
     if (owner) {
         dog.owner = owner
