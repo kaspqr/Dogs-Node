@@ -33,23 +33,23 @@ const createNewDog = asyncHandler(async (req, res) => {
 
     const dogObject = { user, female, breed }
 
-    if (owner) {
+    if (owner?.length) {
         dogObject.owner = owner
     }
 
-    if (mother) {
+    if (mother?.length) {
         dogObject.mother = mother
     }
 
-    if (father) {
+    if (father?.length) {
         dogObject.father = father
     }
 
-    if (location) {
+    if (location?.length) {
         dogObject.location = location
     }
 
-    if (litter) {
+    if (litter?.length) {
         dogObject.litter = litter
     }
 
@@ -61,23 +61,23 @@ const createNewDog = asyncHandler(async (req, res) => {
         dogObject.sterilized = sterilized
     }
 
-    if (birth) {
+    if (birth?.length) {
         dogObject.birth = birth
     }
 
-    if (death) {
+    if (death?.length) {
         dogObject.death = death
     }
 
-    if (name) {
+    if (name?.length) {
         dogObject.name = name
     }
 
-    if (breed) {
+    if (breed?.length) {
         dogObject.breed = breed
     }
 
-    if (info) {
+    if (info?.length) {
         dogObject.info = info
     }
 
@@ -85,13 +85,15 @@ const createNewDog = asyncHandler(async (req, res) => {
         dogObject.microchipped = microchipped
     }
 
-    if (chipnumber) {
+    if (chipnumber?.length) {
         dogObject.chipnumber = chipnumber
     }
 
     if (typeof passport === 'boolean') {
         dogObject.passport = passport
     }
+
+    dogObject.active = true
 
     // Create and store new user
     const dog = await Dog.create(dogObject)
@@ -121,71 +123,71 @@ const updateDog = asyncHandler(async (req, res) => {
     }
 
 
-    if (user) {
+    if (user?.length) {
         dog.user = user
     }
 
-    if (active) {
+    if (typeof active === 'boolean') {
         dog.active = active
     }
 
-    if (breed) {
+    if (breed?.length) {
         dog.breed = breed
     }
 
-    if (owner) {
+    if (owner?.length) {
         dog.owner = owner
     }
 
-    if (mother) {
+    if (mother?.length) {
         dog.mother = mother
     }
 
-    if (father) {
+    if (father?.length) {
         dog.father = father
     }
 
-    if (location) {
+    if (location?.length) {
         dog.location = location
     }
 
-    if (litter) {
+    if (litter?.length) {
         dog.litter = litter
     }
 
-    if (heat) {
+    if (typeof heat === 'boolean') {
         dog.heat = heat
     }
 
-    if (sterilized) {
+    if (typeof sterilized === 'boolean') {
         dog.sterilized = sterilized
     }
 
-    if (birth) {
+    if (birth?.length) {
         dog.birth = birth
     }
 
-    if (death) {
+    if (death?.length) {
         dog.death = death
     }
 
-    if (name) {
+    if (name?.length) {
         dog.name = name
     }
 
-    if (info) {
+    if (info?.length) {
         dog.info = info
     }
 
-    if (microchipped) {
+    if (typeof microchipped === 'boolean') {
         dog.microchipped = microchipped
     }
 
-    if (chipnumber) {
+    if (chipnumber?.length) {
         dog.chipnumber = chipnumber
     }
 
-    if (passport) {
+    if (typeof passport === 'boolean') {
         dog.passport = passport
     }
 
