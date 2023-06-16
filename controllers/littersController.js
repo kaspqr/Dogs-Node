@@ -1,22 +1,21 @@
 const Litter = require('../models/Litter')
 const Dog = require('../models/Dog')
-const asyncHandler = require('express-async-handler')
 
 // @desc Get all litters
 // @route GET /litters
 // @access Private
-const getAllLitters = asyncHandler(async (req, res) => {
+const getAllLitters = async (req, res) => {
     const litters = await Litter.find().lean()
     if (!litters?.length) {
         return res.status(400).json({ message: 'No litters found' })
     }
     res.json(litters)
-})
+}
 
 // @desc Create new litter
 // @route POST /litters
 // @access Private
-const createNewLitter = asyncHandler(async (req, res) => {
+const createNewLitter = async (req, res) => {
     const { mother } = req.body
 
     // Confirm data
@@ -44,14 +43,14 @@ const createNewLitter = asyncHandler(async (req, res) => {
     } else {
         res.status(400).json({ message: 'Invalid litter data received' })
     }
-})
+}
 
 // @desc No updating for litters
 
 // @desc Delete litter
 // @route DELETE /litters
 // @access Private
-const deleteLitter = asyncHandler(async (req, res) => {
+const deleteLitter = async (req, res) => {
     const { id } = req.body
 
     if (!id) {
@@ -69,7 +68,7 @@ const deleteLitter = asyncHandler(async (req, res) => {
     const reply = `Litter with ID ${result._id} deleted`
 
     res.json(reply)
-})
+}
 
 module.exports = {
     getAllLitters,

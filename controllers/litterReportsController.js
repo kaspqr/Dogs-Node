@@ -1,23 +1,22 @@
 const LitterReport = require('../models/LitterReport')
 const User = require('../models/User')
 const Litter = require('../models/Litter')
-const asyncHandler = require('express-async-handler')
 
 // @desc Get all litter reports
 // @route GET /litterreports
 // @access Private
-const getAllLitterReports = asyncHandler(async (req, res) => {
+const getAllLitterReports = async (req, res) => {
     const litterReports = await LitterReport.find().lean()
     if (!litterReports?.length) {
         return res.status(400).json({ message: 'No litter reports found' })
     }
     res.json(litterReports)
-})
+}
 
 // @desc Create new litter report
 // @route POST /litterreports
 // @access Private
-const createNewLitterReport = asyncHandler(async (req, res) => {
+const createNewLitterReport = async (req, res) => {
     const { litter, reporter, text } = req.body
 
     // Confirm data
@@ -46,14 +45,14 @@ const createNewLitterReport = asyncHandler(async (req, res) => {
     } else {
         res.status(400).json({ message: 'Invalid litter report data received' })
     }
-})
+}
 
 // @desc No updating for litter reports
 
 // @desc Delete litter report
 // @route DELETE /litterreports
 // @access Private
-const deleteLitterReport = asyncHandler(async (req, res) => {
+const deleteLitterReport = async (req, res) => {
     const { id } = req.body
 
     if (!id) {
@@ -71,7 +70,7 @@ const deleteLitterReport = asyncHandler(async (req, res) => {
     const reply = `Litter report with ID ${result._id} deleted`
 
     res.json(reply)
-})
+}
 
 module.exports = {
     getAllLitterReports,

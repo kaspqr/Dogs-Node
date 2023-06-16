@@ -1,22 +1,21 @@
 const Advertisement = require('../models/Advertisement')
 const AdvertisementPicture = require('../models/AdvertisementPicture')
-const asyncHandler = require('express-async-handler')
 
 // @desc Get all advertisement pictures
 // @route GET /advertisementpictures
 // @access Private
-const getAllAdvertisementPictures = asyncHandler(async (req, res) => {
+const getAllAdvertisementPictures = async (req, res) => {
     const advertisementPictures = await AdvertisementPicture.find().lean()
     if (!advertisementPictures?.length) {
         return res.status(400).json({ message: 'No advertisement pictures found' })
     }
     res.json(advertisementPictures)
-})
+}
 
 // @desc Create new advertisement picture
 // @route POST /advertisementpictures
 // @access Private
-const createNewAdvertisementPicture = asyncHandler(async (req, res) => {
+const createNewAdvertisementPicture = async (req, res) => {
     const { advertisement, picture } = req.body
 
     // Confirm data
@@ -40,14 +39,14 @@ const createNewAdvertisementPicture = asyncHandler(async (req, res) => {
     } else {
         res.status(400).json({ message: 'Invalid advertisement picture data received' })
     }
-})
+}
 
 // @desc No updating for advertisement pictures
 
 // @desc Delete advertisement picture
 // @route DELETE /advertisementpictures
 // @access Private
-const deleteAdvertisementPicture = asyncHandler(async (req, res) => {
+const deleteAdvertisementPicture = async (req, res) => {
     const { id } = req.body
 
     if (!id) {
@@ -65,7 +64,7 @@ const deleteAdvertisementPicture = asyncHandler(async (req, res) => {
     const reply = `Advertisement picture with ID ${result._id} deleted`
 
     res.json(reply)
-})
+}
 
 module.exports = {
     getAllAdvertisementPictures,

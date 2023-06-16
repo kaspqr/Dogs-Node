@@ -1,23 +1,22 @@
 const AdvertisementReport = require('../models/AdvertisementReport')
 const User = require('../models/User')
 const Advertisement = require('../models/Advertisement')
-const asyncHandler = require('express-async-handler')
 
 // @desc Get all advertisement reports
 // @route GET /advertisementreports
 // @access Private
-const getAllAdvertisementReports = asyncHandler(async (req, res) => {
+const getAllAdvertisementReports = async (req, res) => {
     const advertisementReports = await AdvertisementReport.find().lean()
     if (!advertisementReports?.length) {
         return res.status(400).json({ message: 'No advertisement reports found' })
     }
     res.json(advertisementReports)
-})
+}
 
 // @desc Create new advertisement report
 // @route POST /advertisementreports
 // @access Private
-const createNewAdvertisementReport = asyncHandler(async (req, res) => {
+const createNewAdvertisementReport = async (req, res) => {
     const { advertisement, reporter, text } = req.body
 
     // Confirm data
@@ -46,14 +45,14 @@ const createNewAdvertisementReport = asyncHandler(async (req, res) => {
     } else {
         res.status(400).json({ message: 'Invalid advertisement report data received' })
     }
-})
+}
 
 // @desc No updating for advertisement reports
 
 // @desc Delete advertisement report
 // @route DELETE /advertisementreports
 // @access Private
-const deleteAdvertisementReport = asyncHandler(async (req, res) => {
+const deleteAdvertisementReport = async (req, res) => {
     const { id } = req.body
 
     if (!id) {
@@ -71,7 +70,7 @@ const deleteAdvertisementReport = asyncHandler(async (req, res) => {
     const reply = `Advertisement report with ID ${result._id} deleted`
 
     res.json(reply)
-})
+}
 
 module.exports = {
     getAllAdvertisementReports,

@@ -1,23 +1,22 @@
 const DogReport = require('../models/DogReport')
 const User = require('../models/User')
 const Dog = require('../models/Dog')
-const asyncHandler = require('express-async-handler')
 
 // @desc Get all dog reports
 // @route GET /dogreports
 // @access Private
-const getAllDogReports = asyncHandler(async (req, res) => {
+const getAllDogReports = async (req, res) => {
     const dogReports = await DogReport.find().lean()
     if (!dogReports?.length) {
         return res.status(400).json({ message: 'No dog reports found' })
     }
     res.json(dogReports)
-})
+}
 
 // @desc Create new dog report
 // @route POST /dogreports
 // @access Private
-const createNewDogReport = asyncHandler(async (req, res) => {
+const createNewDogReport = async (req, res) => {
     const { dog, reporter, text } = req.body
 
     // Confirm data
@@ -46,14 +45,14 @@ const createNewDogReport = asyncHandler(async (req, res) => {
     } else {
         res.status(400).json({ message: 'Invalid dog report data received' })
     }
-})
+}
 
 // @desc No updating for dog reports
 
 // @desc Delete dog report
 // @route DELETE /dogreports
 // @access Private
-const deleteDogReport = asyncHandler(async (req, res) => {
+const deleteDogReport = async (req, res) => {
     const { id } = req.body
 
     if (!id) {
@@ -71,7 +70,7 @@ const deleteDogReport = asyncHandler(async (req, res) => {
     const reply = `Dog report with ID ${result._id} deleted`
 
     res.json(reply)
-})
+}
 
 module.exports = {
     getAllDogReports,

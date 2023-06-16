@@ -1,22 +1,21 @@
 const UserReport = require('../models/UserReport')
 const User = require('../models/User')
-const asyncHandler = require('express-async-handler')
 
 // @desc Get all user reports
 // @route GET /userreports
 // @access Private
-const getAllUserReports = asyncHandler(async (req, res) => {
+const getAllUserReports = async (req, res) => {
     const userReports = await UserReport.find().lean()
     if (!userReports?.length) {
         return res.status(400).json({ message: 'No user reports found' })
     }
     res.json(userReports)
-})
+}
 
 // @desc Create new user report
 // @route POST /userreports
 // @access Private
-const createNewUserReport = asyncHandler(async (req, res) => {
+const createNewUserReport = async (req, res) => {
     const { reportee, reporter, text } = req.body
 
     // Confirm data
@@ -45,14 +44,14 @@ const createNewUserReport = asyncHandler(async (req, res) => {
     } else {
         res.status(400).json({ message: 'Invalid user report data received' })
     }
-})
+}
 
 // @desc No updating for user reports
 
 // @desc Delete user report
 // @route DELETE /userreports
 // @access Private
-const deleteUserReport = asyncHandler(async (req, res) => {
+const deleteUserReport = async (req, res) => {
     const { id } = req.body
 
     if (!id) {
@@ -70,7 +69,7 @@ const deleteUserReport = asyncHandler(async (req, res) => {
     const reply = `User report with ID ${result._id} deleted`
 
     res.json(reply)
-})
+}
 
 module.exports = {
     getAllUserReports,

@@ -2,23 +2,22 @@ const MessageReport = require('../models/MessageReport')
 const User = require('../models/User')
 const Message = require('../models/Message')
 const Conversation = require('../models/Conversation')
-const asyncHandler = require('express-async-handler')
 
 // @desc Get all message reports
 // @route GET /messagereports
 // @access Private
-const getAllMessageReports = asyncHandler(async (req, res) => {
+const getAllMessageReports = async (req, res) => {
     const messageReports = await MessageReport.find().lean()
     if (!messageReports?.length) {
         return res.status(400).json({ message: 'No message reports found' })
     }
     res.json(messageReports)
-})
+}
 
 // @desc Create new message report
 // @route POST /messagereports
 // @access Private
-const createNewMessageReport = asyncHandler(async (req, res) => {
+const createNewMessageReport = async (req, res) => {
     const { message, reporter, text } = req.body
 
     // Confirm data
@@ -75,14 +74,14 @@ const createNewMessageReport = asyncHandler(async (req, res) => {
     } else {
         res.status(400).json({ message: 'Invalid message report data received' })
     }
-})
+}
 
 // @desc No updating for message reports
 
 // @desc Delete message report
 // @route DELETE /messagereports
 // @access Private
-const deleteMessageReport = asyncHandler(async (req, res) => {
+const deleteMessageReport = async (req, res) => {
     const { id } = req.body
 
     if (!id) {
@@ -100,7 +99,7 @@ const deleteMessageReport = asyncHandler(async (req, res) => {
     const reply = `Message report with ID ${result._id} deleted`
 
     res.json(reply)
-})
+}
 
 module.exports = {
     getAllMessageReports,

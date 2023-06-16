@@ -1,23 +1,22 @@
 const Message = require('../models/Message')
 const Conversation = require('../models/Conversation')
 const User = require('../models/User')
-const asyncHandler = require('express-async-handler')
 
 // @desc Get all messages
 // @route GET /messages
 // @access Private
-const getAllMessages = asyncHandler(async (req, res) => {
+const getAllMessages = async (req, res) => {
     const messages = await Message.find().lean()
     if (!messages?.length) {
         return res.status(400).json({ message: 'No messages found' })
     }
     res.json(messages)
-})
+}
 
 // @desc Create new message
 // @route POST /messages
 // @access Private
-const createNewMessage = asyncHandler(async (req, res) => {
+const createNewMessage = async (req, res) => {
     const { sender, conversation, text, receiver } = req.body
 
     // Confirm data
@@ -75,14 +74,14 @@ const createNewMessage = asyncHandler(async (req, res) => {
     } else {
         res.status(400).json({ message: 'Invalid message data received' })
     }
-})
+}
 
 // @desc No updating for messages
 
 // @desc Delete message
 // @route DELETE /messages
 // @access Private
-const deleteMessage = asyncHandler(async (req, res) => {
+const deleteMessage = async (req, res) => {
     const { id } = req.body
 
     if (!id) {
@@ -100,7 +99,7 @@ const deleteMessage = asyncHandler(async (req, res) => {
     const reply = `Message with ID ${result._id} deleted`
 
     res.json(reply)
-})
+}
 
 module.exports = {
     getAllMessages,

@@ -1,23 +1,22 @@
 const Litter = require('../models/Litter')
 const Dog = require('../models/Dog')
 const User = require('../models/User')
-const asyncHandler = require('express-async-handler')
 
 // @desc Get all dogs
 // @route GET /dogs
 // @access Private
-const getAllDogs = asyncHandler(async (req, res) => {
+const getAllDogs = async (req, res) => {
     const dogs = await Dog.find().lean()
     if (!dogs?.length) {
         return res.status(400).json({ message: 'No dogs found' })
     }
     res.json(dogs)
-})
+}
 
 // @desc Create new dog
 // @route POST /dogs
 // @access Private
-const createNewDog = asyncHandler(async (req, res) => {
+const createNewDog = async (req, res) => {
     const { user, owner, mother, father, female, location, litter, heat, sterilized, birth, death, name, breed, info, microchipped, chipnumber, passport } = req.body
 
     // Confirm data
@@ -103,12 +102,12 @@ const createNewDog = asyncHandler(async (req, res) => {
     } else {
         res.status(400).json({ message: 'Invalid dog data received' })
     }
-})
+}
 
 // @desc Update dog
 // @route PATCH /dogs
 // @access Private
-const updateDog = asyncHandler(async (req, res) => {
+const updateDog = async (req, res) => {
     const { id, user, owner, mother, father, location, litter, heat, sterilized, birth, death, name, breed, info, active, microchipped, chipnumber, passport } = req.body
 
     // Confirm data
@@ -194,12 +193,12 @@ const updateDog = asyncHandler(async (req, res) => {
     await dog.save()
 
     res.json({ message: `Dog with an ID of ${id} has been updated` })
-})
+}
 
 // @desc Delete dog 
 // @route DELETE /dogs
 // @access Private
-const deleteDog = asyncHandler(async (req, res) => {
+const deleteDog = async (req, res) => {
     const { id } = req.body
 
     if (!id) {
@@ -225,7 +224,7 @@ const deleteDog = asyncHandler(async (req, res) => {
     const reply = `Dog with ID ${result._id} deleted`
 
     res.json(reply)
-})
+}
 
 module.exports = {
     getAllDogs,
