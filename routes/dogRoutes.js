@@ -3,12 +3,11 @@ const router = express.Router()
 const dogsController = require('../controllers/dogsController')
 const verifyJWT = require('../middleware/verifyJWT')
 
-router.use(verifyJWT)
-
 router.route('/')
-    .get(dogsController.getAllDogs)
-    .post(dogsController.createNewDog)
-    .patch(dogsController.updateDog)
-    .delete(dogsController.deleteDog)
+    .get(dogsController.getAllDogs) // No need to verify for the GET method
+
+    .post(verifyJWT, dogsController.createNewDog)
+    .patch(verifyJWT, dogsController.updateDog)
+    .delete(verifyJWT, dogsController.deleteDog)
 
 module.exports = router

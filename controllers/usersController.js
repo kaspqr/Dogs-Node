@@ -61,7 +61,7 @@ const createNewUser = async (req, res) => {
 // @route PATCH /users
 // @access Private
 const updateUser = async (req, res) => {
-    const { id, username, roles, active, password, name, email, location, bio, picture } = req.body
+    const { id, roles, active, password, name, email, location, bio, picture } = req.body
 
     // Confirm data
     if (!id || typeof active !== 'boolean' || !email || !name || !location) {
