@@ -2,15 +2,25 @@ const User = require('../models/User')
 const Dog = require('../models/Dog')
 const bcrypt = require('bcrypt')
 
-// @desc Get all
+// @desc Get all users
 // @route GET /users
 // @access Private
 const getAllUsers = async (req, res) => {
-    const users = await User.find().select('-password').lean()
-    if (!users?.length) {
-        return res.status(400).json({ message: 'No users found' })
+    const { id } = req.body
+
+    if (id?.length) {
+        const user = await User.findById(id).select('-password').exec()
+        if (!user) {
+            return res.status(400).json({ message: `User with id ${id} not found` })
+        }
+        res.json(user)
+    } else {
+        const users = await User.find().select('-password').lean()
+        if (!users?.length) {
+            return res.status(400).json({ message: 'No users found' })
+        }
+        res.json(users)
     }
-    res.json(users)
 }
 
 // @desc Create new user
