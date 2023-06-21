@@ -6,6 +6,11 @@ const litterSchema = new mongoose.Schema({
         ref: 'Dog',
         required: true
     },
+    born: {
+        type: Date,
+        required: true,
+        default: Date.now
+    },
     active: {
         type: Boolean,
         default: true
