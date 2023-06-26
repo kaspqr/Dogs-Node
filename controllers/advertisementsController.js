@@ -19,14 +19,22 @@ const createNewAdvertisement = async (req, res) => {
     const { premium, poster, title, type, price, info } = req.body
 
     // Confirm data
-    if (typeof premium !== 'boolean' || !poster || !title || !type || !price) {
+    if (!poster || !title || !type) {
         return res.status(400).json({ message: 'Premium, poster, title, type and price is required' })
     }
 
-    const advertisementObject = { premium, poster, title, type, price }
+    const advertisementObject = { poster, title, type }
 
     if (typeof info === 'string' && info?.length) {
         advertisementObject.info = info
+    }
+
+    if (typeof premium === 'boolean') {
+        advertisementObject.premium = premium
+    }
+
+    if (price?.length) {
+        advertisementObject.price = price
     }
 
     // Create and store new advertisement

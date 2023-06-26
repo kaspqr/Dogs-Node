@@ -6,6 +6,11 @@ const litterSchema = new mongoose.Schema({
         ref: 'Dog',
         required: true
     },
+    father: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Dog',
+        required: true
+    },
     born: {
         type: Date,
         required: true,

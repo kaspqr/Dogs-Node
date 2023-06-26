@@ -112,7 +112,7 @@ const updateDog = async (req, res) => {
 
     // Confirm data
     if (!id) {
-        return res.status(400).json({ message: 'ID, administrative user ID, gender, breed and active status is required' })
+        return res.status(400).json({ message: 'ID is required' })
     }
 
     const dog = await Dog.findById(id).exec()
