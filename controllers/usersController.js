@@ -74,8 +74,8 @@ const updateUser = async (req, res) => {
     const { id, roles, active, password, name, email, location, bio, picture } = req.body
 
     // Confirm data
-    if (!id || typeof active !== 'boolean' || !email || !name || !location) {
-        return res.status(400).json({ message: 'All fields are required' })
+    if (!id) {
+        return res.status(400).json({ message: 'ID is required' })
     }
 
     const user = await User.findById(id).exec()
@@ -92,18 +92,29 @@ const updateUser = async (req, res) => {
         return res.status(409).json({ message: 'Duplicate email' })
     }
 
-    user.active = active
-    user.name = name
-    user.email = email
-    user.location = location
-
     if (password) {
         // Hash password
         user.password = await bcrypt.hash(password, 10) // salt rounds
     }
 
+    if (typeof active !== 'boolean') {
+        user.active = active
+    }
+
     if (bio?.length) {
         user.bio = bio
+    }
+
+    if (email?.length) {
+        user.email = email
+    }
+
+    if (name?.length) {
+        user.name = name
+    }
+
+    if (location?.length) {
+        user.location = location
     }
 
     if (picture) {

@@ -8,8 +8,7 @@ const litterSchema = new mongoose.Schema({
     },
     father: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Dog',
-        required: true
+        ref: 'Dog'
     },
     born: {
         type: Date,
