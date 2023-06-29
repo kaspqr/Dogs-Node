@@ -18,6 +18,11 @@ const litterSchema = new mongoose.Schema({
     active: {
         type: Boolean,
         default: true
+    },
+    children: {
+        type: Number,
+        default: 1,
+        required: true
     }
 })
 

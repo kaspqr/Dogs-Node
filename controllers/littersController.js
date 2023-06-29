@@ -16,15 +16,11 @@ const getAllLitters = async (req, res) => {
 // @route POST /litters
 // @access Private
 const createNewLitter = async (req, res) => {
-    const { mother, born } = req.body
+    const { mother, born, children } = req.body
 
     // Confirm data
-    if (!mother) {
-        return res.status(400).json({ message: 'Mother of the litter is required' })
-    }
-
-    if (!born) {
-        return res.status(400).json({ message: 'Birth time of the litter is required' })
+    if (!mother || !born || !children) {
+        return res.status(400).json({ message: 'Mother, time of birth and amount of children is required' })
     }
 
     const isFemale = await Dog.findById(mother)
@@ -37,7 +33,7 @@ const createNewLitter = async (req, res) => {
         return res.status(400).json({ message: `Dog with ID ${mother} is not female` })
     }
 
-    const litterObject = { mother, born }
+    const litterObject = { mother, born, children }
 
     // Create and store new litter
     const litter = await Litter.create(litterObject)
@@ -49,7 +45,29 @@ const createNewLitter = async (req, res) => {
     }
 }
 
-// @desc No updating for litters
+// @desc Update litter
+// @route PATCH /litters
+// @access Private
+const updateLitter = async (req, res) => {
+    const { id, father } = req.body
+
+    // Confirm data
+    if (!id || !father) {
+        return res.status(400).json({ message: 'Litter ID and father required' })
+    }
+
+    const litter = await Litter.findById(id).exec()
+
+    if (!litter) {
+        return res.status(400).json({ message: 'Litter not found' })
+    }
+
+    litter.father = father
+
+    const updatedLitter = await litter.save()
+
+    res.json({ message: `Litter ${updatedLitter?.title} with ID ${id} updated` })
+}
 
 // @desc Delete litter
 // @route DELETE /litters
@@ -77,5 +95,6 @@ const deleteLitter = async (req, res) => {
 module.exports = {
     getAllLitters,
     createNewLitter,
+    updateLitter,
     deleteLitter
 }
