@@ -39,7 +39,9 @@ const dogSchema = new mongoose.Schema({
         default: false
     },
     birth: {
-        type: String
+        type: String,
+        default: Date.now,
+        required: true
     },
     death: {
         type: String

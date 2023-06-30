@@ -11,7 +11,7 @@ const litterSchema = new mongoose.Schema({
         ref: 'Dog'
     },
     born: {
-        type: Date,
+        type: String,
         required: true,
         default: Date.now
     },

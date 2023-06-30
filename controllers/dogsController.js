@@ -20,7 +20,7 @@ const createNewDog = async (req, res) => {
     const { user, owner, mother, father, female, location, litter, heat, sterilized, birth, death, name, breed, info, microchipped, chipnumber, passport } = req.body
 
     // Confirm data
-    if (!user || typeof female !== 'boolean' || !breed) {
+    if (!user || typeof female !== 'boolean' || !breed || !birth) {
         return res.status(400).json({ message: 'Administrative user, breed and gender is required' })
     }
 
@@ -30,7 +30,7 @@ const createNewDog = async (req, res) => {
         return res.status(400).json({ message: 'Administrative user not found' })
     }
 
-    const dogObject = { user, female, breed }
+    const dogObject = { user, female, breed, birth }
 
     if (owner?.length) {
         dogObject.owner = owner
@@ -58,10 +58,6 @@ const createNewDog = async (req, res) => {
 
     if (typeof sterilized === 'boolean') {
         dogObject.sterilized = sterilized
-    }
-
-    if (birth?.length) {
-        dogObject.birth = birth
     }
 
     if (death?.length) {
