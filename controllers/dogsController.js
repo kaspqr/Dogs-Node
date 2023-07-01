@@ -104,7 +104,7 @@ const createNewDog = async (req, res) => {
 // @route PATCH /dogs
 // @access Private
 const updateDog = async (req, res) => {
-    const { id, user, owner, mother, father, location, litter, heat, sterilized, birth, death, name, breed, info, active, microchipped, chipnumber, passport } = req.body
+    const { id, instagram, facebook, youtube, tiktok, user, owner, mother, father, location, litter, heat, sterilized, birth, death, name, breed, info, active, microchipped, chipnumber, passport } = req.body
 
     // Confirm data
     if (!id) {
@@ -121,6 +121,12 @@ const updateDog = async (req, res) => {
     if (user?.length) {
         dog.user = user
     }
+
+    dog.instagram = instagram
+    dog.facebook = facebook
+    dog.youtube = youtube
+    dog.tiktok = tiktok
+
 
     if (typeof active === 'boolean') {
         dog.active = active

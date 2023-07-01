@@ -67,6 +67,18 @@ const dogSchema = new mongoose.Schema({
     info: {
         type: String
     },
+    instagram: {
+        type: String
+    },
+    facebook: {
+        type: String
+    },
+    youtube: {
+        type: String
+    },
+    tiktok: {
+        type: String
+    },
     location: {
         type: String
     }
