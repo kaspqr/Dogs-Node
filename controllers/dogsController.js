@@ -104,7 +104,7 @@ const createNewDog = async (req, res) => {
 // @route PATCH /dogs
 // @access Private
 const updateDog = async (req, res) => {
-    const { id, instagram, facebook, youtube, tiktok, user, owner, mother, father, location, litter, heat, sterilized, birth, death, name, breed, info, active, microchipped, chipnumber, passport } = req.body
+    const { id, instagram, facebook, youtube, tiktok, user, owner, location, litter, heat, sterilized, death, info, active, microchipped, chipnumber, passport } = req.body
 
     // Confirm data
     if (!id) {
@@ -122,30 +122,28 @@ const updateDog = async (req, res) => {
         dog.user = user
     }
 
-    dog.instagram = instagram
-    dog.facebook = facebook
-    dog.youtube = youtube
-    dog.tiktok = tiktok
+    if (instagram?.length) {
+        dog.instagram = instagram
+    }
 
+    if (facebook?.length) {
+        dog.facebook = facebook
+    }
+
+    if (youtube?.length) {
+        dog.youtube = youtube
+    }
+
+    if (tiktok?.length) {
+        dog.tiktok = tiktok
+    }
 
     if (typeof active === 'boolean') {
         dog.active = active
     }
 
-    if (breed?.length) {
-        dog.breed = breed
-    }
-
     if (owner?.length) {
         dog.owner = owner
-    }
-
-    if (mother?.length) {
-        dog.mother = mother
-    }
-
-    if (father?.length) {
-        dog.father = father
     }
 
     if (location?.length) {
@@ -164,16 +162,8 @@ const updateDog = async (req, res) => {
         dog.sterilized = sterilized
     }
 
-    if (birth?.length) {
-        dog.birth = birth
-    }
-
     if (death?.length) {
         dog.death = death
-    }
-
-    if (name?.length) {
-        dog.name = name
     }
 
     if (info?.length) {
