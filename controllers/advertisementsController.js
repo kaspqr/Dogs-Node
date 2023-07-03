@@ -16,7 +16,7 @@ const getAllAdvertisements = async (req, res) => {
 // @route POST /advertisements
 // @access Private
 const createNewAdvertisement = async (req, res) => {
-    const { premium, poster, title, type, price, info } = req.body
+    const { premium, poster, title, type, price, info, currency } = req.body
 
     // Confirm data
     if (!poster || !title || !type) {
@@ -37,6 +37,10 @@ const createNewAdvertisement = async (req, res) => {
         advertisementObject.price = price
     }
 
+    if (currency?.length) {
+        advertisementObject.currency = currency
+    }
+
     // Create and store new advertisement
     const advertisement = await Advertisement.create(advertisementObject)
 
@@ -51,7 +55,7 @@ const createNewAdvertisement = async (req, res) => {
 // @route PATCH /advertisements
 // @access Private
 const updateAdvertisement = async (req, res) => {
-    const { id, premium, title, type, price, info, active } = req.body
+    const { id, premium, title, type, price, info, active, currency } = req.body
 
     // Confirm data
     if (!id) {
@@ -74,6 +78,10 @@ const updateAdvertisement = async (req, res) => {
 
     if (price) {
         advertisement.price = price
+    }
+
+    if (currency) {
+        advertisement.currency = currency
     }
 
     if (info) {
