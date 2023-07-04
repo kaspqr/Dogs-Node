@@ -30,6 +30,10 @@ const advertisementSchema = new mongoose.Schema({
     info: {
         type: String,
     },
+    location: {
+        type: String,
+        required: true
+    },
     active: {
         type: Boolean,
         default: true
