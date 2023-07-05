@@ -17,7 +17,7 @@ const getAllDogs = async (req, res) => {
 // @route POST /dogs
 // @access Private
 const createNewDog = async (req, res) => {
-    const { user, owner, mother, father, female, location, litter, heat, sterilized, birth, death, name, breed, info, microchipped, chipnumber, passport } = req.body
+    const { user, owner, mother, father, female, country, region, litter, heat, sterilized, birth, death, name, breed, info, microchipped, chipnumber, passport } = req.body
 
     // Confirm data
     if (!user || typeof female !== 'boolean' || !breed || !birth) {
@@ -44,8 +44,12 @@ const createNewDog = async (req, res) => {
         dogObject.father = father
     }
 
-    if (location?.length) {
-        dogObject.location = location
+    if (country?.length) {
+        dogObject.country = country
+    }
+
+    if (region?.length) {
+        dogObject.region = region
     }
 
     if (litter?.length) {
@@ -104,7 +108,7 @@ const createNewDog = async (req, res) => {
 // @route PATCH /dogs
 // @access Private
 const updateDog = async (req, res) => {
-    const { id, instagram, facebook, youtube, tiktok, user, owner, location, litter, heat, sterilized, death, info, active, microchipped, chipnumber, passport } = req.body
+    const { id, instagram, facebook, youtube, tiktok, user, owner, country, region, litter, heat, sterilized, death, info, active, microchipped, chipnumber, passport } = req.body
 
     // Confirm data
     if (!id) {
@@ -146,8 +150,12 @@ const updateDog = async (req, res) => {
         dog.owner = owner
     }
 
-    if (location?.length) {
-        dog.location = location
+    if (country?.length) {
+        dog.country = country
+    }
+
+    if (region?.length) {
+        dog.region = region
     }
 
     if (litter?.length) {

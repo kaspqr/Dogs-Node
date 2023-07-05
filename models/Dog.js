@@ -79,7 +79,11 @@ const dogSchema = new mongoose.Schema({
     tiktok: {
         type: String
     },
-    location: {
+    country: {
+        type: String,
+        required: true
+    },
+    region: {
         type: String
     }
 })
