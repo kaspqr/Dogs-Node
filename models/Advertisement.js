@@ -30,9 +30,12 @@ const advertisementSchema = new mongoose.Schema({
     info: {
         type: String,
     },
-    location: {
+    country: {
         type: String,
         required: true
+    },
+    region: {
+        type: String
     },
     active: {
         type: Boolean,

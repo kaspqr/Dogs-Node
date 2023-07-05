@@ -16,14 +16,14 @@ const getAllAdvertisements = async (req, res) => {
 // @route POST /advertisements
 // @access Private
 const createNewAdvertisement = async (req, res) => {
-    const { premium, poster, title, type, price, info, currency } = req.body
+    const { premium, poster, title, type, price, info, currency, country, region } = req.body
 
     // Confirm data
-    if (!poster || !title || !type) {
-        return res.status(400).json({ message: 'Premium, poster, title, type and price is required' })
+    if (!poster || !title || !type || !country) {
+        return res.status(400).json({ message: 'Premium, poster, title, type, country and price is required' })
     }
 
-    const advertisementObject = { poster, title, type }
+    const advertisementObject = { poster, title, type, country }
 
     if (typeof info === 'string' && info?.length) {
         advertisementObject.info = info
@@ -41,6 +41,10 @@ const createNewAdvertisement = async (req, res) => {
         advertisementObject.currency = currency
     }
 
+    if (region?.length) {
+        advertisementObject.region = region
+    }
+
     // Create and store new advertisement
     const advertisement = await Advertisement.create(advertisementObject)
 
@@ -55,7 +59,7 @@ const createNewAdvertisement = async (req, res) => {
 // @route PATCH /advertisements
 // @access Private
 const updateAdvertisement = async (req, res) => {
-    const { id, premium, title, type, price, info, active, currency } = req.body
+    const { id, premium, title, type, price, info, active, currency, country, region } = req.body
 
     // Confirm data
     if (!id) {
@@ -74,6 +78,16 @@ const updateAdvertisement = async (req, res) => {
 
     if (title) {
         advertisement.title = title
+    }
+
+    if (country) {
+        advertisement.country = country
+    }
+
+    if (region?.length) {
+        advertisement.region = region
+    } else {
+        advertisement.region = ''
     }
 
     if (price) {
