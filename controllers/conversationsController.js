@@ -40,7 +40,7 @@ const createNewConversation = async (req, res) => {
     const conversation = await Conversation.create(conversationObject)
 
     if (conversation) { //Created
-        res.status(201).json({ message: `Conversation with ID ${conversation?.id} created` })
+        res.status(201).json({ newConversationId: conversation.id, message: `Conversation with ID ${conversation.id} created` })
     } else {
         res.status(400).json({ message: 'Invalid conversation data received' })
     }
