@@ -17,7 +17,8 @@ const getAllDogs = async (req, res) => {
 // @route POST /dogs
 // @access Private
 const createNewDog = async (req, res) => {
-    const { user, owner, mother, father, female, country, region, litter, heat, sterilized, birth, death, name, breed, info, microchipped, chipnumber, passport } = req.body
+    const { user, owner, mother, father, female, country, region, litter, heat, 
+        sterilized, birth, death, name, breed, info, microchipped, chipnumber, passport } = req.body
 
     // Confirm data
     if (!user || typeof female !== 'boolean' || !breed || !birth) {

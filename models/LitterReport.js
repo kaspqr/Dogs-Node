@@ -3,11 +3,13 @@ const mongoose = require('mongoose')
 const litterReportSchema = new mongoose.Schema({
     reporter: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true
     },
     litter: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Litter'
+        ref: 'Litter',
+        required: true
     },
     text: {
         type: String,

@@ -3,11 +3,13 @@ const mongoose = require('mongoose')
 const messageReportSchema = new mongoose.Schema({
     reporter: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true
     },
     message: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Message'
+        ref: 'Message',
+        required: true
     },
     text: {
         type: String,

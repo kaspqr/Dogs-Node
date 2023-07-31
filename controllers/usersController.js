@@ -44,7 +44,6 @@ const createNewUser = async (req, res) => {
     // Check for email duplicate
     const emailDuplicate = await User.findOne({ email }).collation({ locale: 'en', strength: 2 }).lean().exec()
 
-    // Allow updates to the original user
     if (emailDuplicate) {
         return res.status(409).json({ message: 'Duplicate email' })
     }

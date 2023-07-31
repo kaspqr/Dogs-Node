@@ -3,11 +3,13 @@ const mongoose = require('mongoose')
 const dogReportSchema = new mongoose.Schema({
     reporter: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true
     },
     dog: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Dog'
+        ref: 'Dog',
+        required: true
     },
     text: {
         type: String,
