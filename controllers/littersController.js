@@ -56,6 +56,16 @@ const updateLitter = async (req, res) => {
         return res.status(400).json({ message: 'Litter ID and father required' })
     }
 
+    const dog = Dog.findById(father).exec()
+
+    if (!dog) {
+        return res.status(400).json({ message: `Dog with id ${dog} doesn't exist` })
+    }
+
+    if (dog?.female !== false) {
+        return res.status(400).json({ message: `Dog with id ${dog} is not male` })
+    }
+
     const litter = await Litter.findById(id).exec()
 
     if (!litter) {
@@ -83,6 +93,14 @@ const deleteLitter = async (req, res) => {
 
     if (!litter) {
         return res.status(400).json({ message: 'Litter not found' })
+    }
+
+    const dogs = await Dog.find({ "litter": id }).lean().exec()
+
+    for (const dog of dogs) {
+        dog.litter = null
+        const updatedDog = await Dog.findByIdAndUpdate(dog._id, dog, { new: true }).lean().exec()
+        console.log(`removed litter from dog ${updatedDog._id}`)
     }
 
     const result = await litter.deleteOne()

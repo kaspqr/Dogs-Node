@@ -17,7 +17,7 @@ const getAllDogs = async (req, res) => {
 // @route POST /dogs
 // @access Private
 const createNewDog = async (req, res) => {
-    const { user, owner, mother, father, female, country, region, litter, heat, 
+    const { user, female, country, region, litter, heat, 
         sterilized, birth, death, name, breed, info, microchipped, chipnumber, passport } = req.body
 
     // Confirm data
@@ -32,18 +32,6 @@ const createNewDog = async (req, res) => {
     }
 
     const dogObject = { user, female, breed, birth }
-
-    if (owner?.length) {
-        dogObject.owner = owner
-    }
-
-    if (mother?.length) {
-        dogObject.mother = mother
-    }
-
-    if (father?.length) {
-        dogObject.father = father
-    }
 
     if (country?.length) {
         dogObject.country = country
@@ -109,7 +97,8 @@ const createNewDog = async (req, res) => {
 // @route PATCH /dogs
 // @access Private
 const updateDog = async (req, res) => {
-    const { id, instagram, facebook, youtube, tiktok, user, owner, country, region, litter, heat, sterilized, death, info, active, microchipped, chipnumber, passport } = req.body
+    const { id, instagram, facebook, youtube, tiktok, user, country, region, litter, 
+        heat, sterilized, death, info, active, microchipped, chipnumber, passport } = req.body
 
     // Confirm data
     if (!id) {
@@ -145,10 +134,6 @@ const updateDog = async (req, res) => {
 
     if (typeof active === 'boolean') {
         dog.active = active
-    }
-
-    if (owner?.length) {
-        dog.owner = owner
     }
 
     if (country?.length) {
@@ -209,15 +194,23 @@ const deleteDog = async (req, res) => {
     const dog = await Dog.findById(id).exec()
 
     // Check if the dog has a litter in the database
-    const litters = await Litter.find({ "mother": id }).lean().exec()
+    const litter = await Litter.find({ "mother": id }).lean().exec()
+
+    if (litter) {
+        const dogs = await Dog.find({ "litter": litter }).lean().exec()
+
+        for (const dog of dogs) {
+            dog.litter = null
+            const updatedDog = await Dog.findByIdAndUpdate(dog._id, dog, { new: true }).lean().exec()
+            console.log(`removed litter from dog ${updatedDog._id}`)
+        }
+
+        const result = await Litter.findByIdAndDelete(litter)
+        console.log(result)
+    }
 
     if (!dog) {
         return res.status(400).json({ message: 'Dog not found' })
-    }
-
-    // If the dog did have a litter, delete the litter also
-    if (litters?.length) {
-        litters.delete()
     }
 
     const result = await dog.deleteOne()

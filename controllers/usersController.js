@@ -70,7 +70,7 @@ const createNewUser = async (req, res) => {
 // @route PATCH /users
 // @access Private
 const updateUser = async (req, res) => {
-    const { id, roles, active, password, name, email, location, bio, picture } = req.body
+    const { id, active, password, name, email, location, bio, picture } = req.body
 
     // Confirm data
     if (!id) {
@@ -87,7 +87,7 @@ const updateUser = async (req, res) => {
     const emailDuplicate = await User.findOne({ email }).collation({ locale: 'en', strength: 2 }).lean().exec()
 
     // Allow updates to the original user
-    if (emailDuplicate && emailDuplicate?._id?.toString() !== id) {
+    if (email && emailDuplicate && emailDuplicate?._id?.toString() !== id) {
         return res.status(409).json({ message: 'Duplicate email' })
     }
 

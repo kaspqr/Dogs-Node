@@ -6,18 +6,6 @@ const dogSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    },
-    mother: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Dog'
-    },
-    father: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Dog'
-    },
     female: {
         type: Boolean,
         required: true
@@ -47,7 +35,8 @@ const dogSchema = new mongoose.Schema({
         type: String
     },
     name: {
-        type: String
+        type: String,
+        required: true
     },
     breed: {
         type: String,

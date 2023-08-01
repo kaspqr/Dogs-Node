@@ -23,6 +23,10 @@ const createNewUserReport = async (req, res) => {
         return res.status(400).json({ message: 'Reportee, reporter and text is required' })
     }
 
+    if (reportee === reporter) {
+        return res.status(400).json({ message: 'You may not report yourself' })
+    }
+
     const reportedUser = await User.findById(reportee)
     const userReporter = await User.findById(reporter)
 

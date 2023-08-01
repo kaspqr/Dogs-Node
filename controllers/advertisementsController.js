@@ -23,6 +23,16 @@ const createNewAdvertisement = async (req, res) => {
         return res.status(400).json({ message: 'Premium, poster, title, type, country and price is required' })
     }
 
+    const validPoster = await User.findById(poster).select('-password').exec()
+
+    if (!validPoster) {
+        return res.status(400).json({ message: `Poster with ID ${poster} not found` })
+    }
+
+    if (validPoster?.active !== true) {
+        return res.status(400).json({ message: `Poster with ID ${poster} is banned` })
+    }
+
     const advertisementObject = { poster, title, type, country }
 
     if (typeof info === 'string' && info?.length) {
