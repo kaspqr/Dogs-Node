@@ -96,7 +96,7 @@ const updateUser = async (req, res) => {
         user.password = await bcrypt.hash(password, 10) // salt rounds
     }
 
-    if (typeof active !== 'boolean') {
+    if (typeof active === 'boolean') {
         user.active = active
     }
 
