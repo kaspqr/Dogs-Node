@@ -1,5 +1,9 @@
 const User = require('../models/User')
 const Dog = require('../models/Dog')
+const Litter = require('../models/Litter')
+const Advertisement = require('../models/Advertisement')
+const Conversation = require('../models/Conversation')
+const Message = require('../models/Message')
 const bcrypt = require('bcrypt')
 
 // @desc Get all users
@@ -137,15 +141,109 @@ const deleteUser = async (req, res) => {
 
     const user = await User.findById(id).exec()
     const dogs = await Dog.find({ "user": id }).lean().exec()
+    const advertisements = await Advertisement.find({ "poster": id }).lean().exec()
+    const receiverConversations = await Conversation.find({ "receiver": id }).lean().exec()
+    const senderConversations = await Conversation.find({ "sender": id }).lean().exec()
 
     if (!user) {
         return res.status(400).json({ message: 'User not found' })
     }
 
-    if (dogs?.length) {
-        dogs.delete()
+    // Find all conversations associated with user
+    if (receiverConversations?.length) {
+
+        for (const convo of receiverConversations) {
+
+            // Find all the messages for each conversation
+            const messages = await Message.find({ "conversation": convo }).lean().exec()
+
+            if (messages) {
+
+                // Delete messages
+                for (const message of messages) {
+                    await Message.findByIdAndDelete(message)
+                }
+            }
+
+            // Delete conversation
+            await Conversation.findByIdAndDelete(convo)
+        }
     }
 
+    // Same as above, if the user is the conversation's "sender" instead of "receiver"
+    if (senderConversations?.length) {
+        for (const convo of senderConversations) {
+            const messages = await Message.find({ "conversation": convo }).lean().exec()
+            if (messages) {
+                for (const message of messages) {
+                    await Message.findByIdAndDelete(message)
+                }
+            }
+            await Conversation.findByIdAndDelete(convo)
+        }
+    }
+
+
+    if (advertisements?.length) {
+
+        // Delete all advertisements posted by the user
+        for (const ad of advertisements) {
+            await Advertisement.findByIdAndDelete(ad)
+        }
+    }
+
+
+    // For each of the user's dogs
+    if (dogs?.length) {
+        for (const dog of dogs) {
+
+            if (dog.female === true) {
+
+                // Check if the dog has a litter in the database
+                const litters = await Litter.find({ "mother": id }).lean().exec()
+
+                if (litters) {
+
+                    for (const litter of litters) {
+
+                        // Find all the dogs of each litter
+                        const litterdogs = await Dog.find({ "litter": litter }).lean().exec()
+
+                        // Set the dogs' litter to null, as the litter will no longer exist
+                        for (const dog of litterdogs) {
+                            dog.litter = null
+                            const updatedDog = await Dog.findByIdAndUpdate(dog._id, dog, { new: true }).lean().exec()
+                            console.log(`removed litter from dog ${updatedDog._id}`)
+                        }
+
+                        // Delete the litter
+                        await Litter.findByIdAndDelete(litter)
+                    }
+                }
+            } else {
+
+                // If the dog is male, find all the litters where the dog is marked as the litter's father
+                const litters = await Litter.find({ "father": id }).lean().exec()
+
+                if (litters) {
+
+                    // Set the litters' father to null, as the dog will no longer exist
+                    for (const litter of litters) {
+                        litter.father = null
+                        await Litter.findByIdAndUpdate(litter._id, litter, { new: true }).lean().exec()
+
+                        // Delete the litter
+                        await Litter.findByIdAndDelete(litter)
+                    }
+                }
+            }
+
+            // Delete the dog
+            await Dog.findByIdAndDelete(dog)
+        }
+    }
+
+    // Finally, delete the user
     const result = await user.deleteOne()
 
     const reply = `Username ${result.username} with ID ${result._id} deleted`
