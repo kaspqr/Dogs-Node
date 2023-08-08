@@ -31,11 +31,11 @@ const getAllUsers = async (req, res) => {
 // @route POST /users
 // @access Private
 const createNewUser = async (req, res) => {
-    const { username, password, name, email, location } = req.body
+    const { username, password, name, email, country, region } = req.body
 
     // Confirm data
-    if (!username?.length || !password?.length || !name?.length || !email?.length || !location?.length) {
-        return res.status(400).json({ message: 'All fields are required' })
+    if (!username?.length || !password?.length || !name?.length || !email?.length || !country?.length) {
+        return res.status(400).json({ message: 'All fields except region are required' })
     }
 
     // Check for duplicates
@@ -58,7 +58,11 @@ const createNewUser = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10) // salt rounds
 
-    const userObject = { username, "password": hashedPassword, name, email, location, roles }
+    // Create the User object with all the required fields
+    const userObject = { username, "password": hashedPassword, name, email, country, roles }
+
+    // If a region was included, add it
+    if (region?.length) userObject.region = region
 
     // Create and store new user
     const user = await User.create(userObject)
@@ -74,7 +78,7 @@ const createNewUser = async (req, res) => {
 // @route PATCH /users
 // @access Private
 const updateUser = async (req, res) => {
-    const { id, active, password, name, email, location, bio, picture } = req.body
+    const { id, active, password, name, email, country, region, bio, picture } = req.body
 
     // Confirm data
     if (!id) {
@@ -116,8 +120,12 @@ const updateUser = async (req, res) => {
         user.name = name
     }
 
-    if (location?.length) {
-        user.location = location
+    if (country?.length) {
+        user.country = country
+    }
+
+    if (region?.length) {
+        user.region = region
     }
 
     if (picture) {

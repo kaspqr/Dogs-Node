@@ -32,7 +32,11 @@ const userSchema = new mongoose.Schema({
     bio: {
         type: String
     },
-    location: {
+    country: {
+        type: String,
+        required: true
+    },
+    region: {
         type: String,
         required: true
     }
