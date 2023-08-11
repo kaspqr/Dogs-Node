@@ -16,11 +16,11 @@ const getAllLitters = async (req, res) => {
 // @route POST /litters
 // @access Private
 const createNewLitter = async (req, res) => {
-    const { mother, born, children } = req.body
+    const { mother, born, children, breed } = req.body
 
     // Confirm data
-    if (!mother || !born || !children) {
-        return res.status(400).json({ message: 'Mother, time of birth and amount of children is required' })
+    if (!mother || !born || !children || !breed) {
+        return res.status(400).json({ message: 'Mother, breed, date of birth and amount of children is required' })
     }
 
     const isFemale = await Dog.findById(mother)
@@ -33,7 +33,7 @@ const createNewLitter = async (req, res) => {
         return res.status(400).json({ message: `Dog with ID ${mother} is not female` })
     }
 
-    const litterObject = { mother, born, children }
+    const litterObject = { mother, born, children, breed }
 
     // Create and store new litter
     const litter = await Litter.create(litterObject)
@@ -56,7 +56,7 @@ const updateLitter = async (req, res) => {
         return res.status(400).json({ message: 'Litter ID and father required' })
     }
 
-    const dog = Dog.findById(father).exec()
+    const dog = await Dog.findById(father).exec()
 
     if (!dog) {
         return res.status(400).json({ message: `Dog with id ${dog} doesn't exist` })
