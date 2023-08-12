@@ -78,7 +78,7 @@ const createNewUser = async (req, res) => {
 // @route PATCH /users
 // @access Private
 const updateUser = async (req, res) => {
-    const { id, active, password, name, email, country, region, bio, picture } = req.body
+    const { id, active, password, name, email, country, region, bio, picture, currentPassword } = req.body
 
     // Confirm data
     if (!id) {
@@ -89,6 +89,14 @@ const updateUser = async (req, res) => {
 
     if (!user) {
         return res.status(400).json({ message: 'User not found' })
+    }
+
+    if (currentPassword?.length) {
+        const match = await bcrypt.compare(currentPassword, user.password)
+
+        if (!match) {
+            return res.status(401).json({ message: 'Incorrect Current Password' })
+        }
     }
 
     // Check for email duplicate
@@ -141,21 +149,30 @@ const updateUser = async (req, res) => {
 // @route DELETE /users
 // @access Private
 const deleteUser = async (req, res) => {
-    const { id } = req.body
+    const { id, currentPassword } = req.body
 
     if (!id) {
         return res.status(400).json({ message: 'User ID Required' })
     }
 
     const user = await User.findById(id).exec()
-    const dogs = await Dog.find({ "user": id }).lean().exec()
-    const advertisements = await Advertisement.find({ "poster": id }).lean().exec()
-    const receiverConversations = await Conversation.find({ "receiver": id }).lean().exec()
-    const senderConversations = await Conversation.find({ "sender": id }).lean().exec()
 
     if (!user) {
         return res.status(400).json({ message: 'User not found' })
     }
+
+    if (currentPassword?.length) {
+        const match = await bcrypt.compare(currentPassword, user.password)
+
+        if (!match) {
+            return res.status(401).json({ message: 'Incorrect Current Password' })
+        }
+    }
+
+    const dogs = await Dog.find({ "user": id }).lean().exec()
+    const advertisements = await Advertisement.find({ "poster": id }).lean().exec()
+    const receiverConversations = await Conversation.find({ "receiver": id }).lean().exec()
+    const senderConversations = await Conversation.find({ "sender": id }).lean().exec()
 
     // Find all conversations associated with user
     if (receiverConversations?.length) {
