@@ -1,6 +1,7 @@
 const Litter = require('../models/Litter')
 const Dog = require('../models/Dog')
 const User = require('../models/User')
+const PuppyPropose = require('../models/PuppyPropose')
 
 // @desc Get all dogs
 // @route GET /dogs
@@ -145,6 +146,13 @@ const updateDog = async (req, res) => {
     }
 
     if (litter?.length) {
+        const proposals = await PuppyPropose.find({ "puppy": dog }).lean().exec()
+        if (proposals) {
+            for (const proposal of proposals) {
+                await PuppyPropose.findByIdAndDelete(proposal)
+            }
+        }
+        
         dog.litter = litter
     }
 

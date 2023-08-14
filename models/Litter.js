@@ -10,6 +10,10 @@ const litterSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Dog'
     },
+    proposedfather: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Dog'
+    },
     breed: {
         type: String,
         required: true,
