@@ -2,6 +2,7 @@ const Litter = require('../models/Litter')
 const Dog = require('../models/Dog')
 const User = require('../models/User')
 const PuppyPropose = require('../models/PuppyPropose')
+const FatherPropose = require('../models/FatherPropose')
 
 // @desc Get all dogs
 // @route GET /dogs
@@ -150,6 +151,13 @@ const updateDog = async (req, res) => {
         if (proposals) {
             for (const proposal of proposals) {
                 await PuppyPropose.findByIdAndDelete(proposal)
+            }
+        }
+        
+        const fatherProposals = await FatherPropose.find({ "father": dog, "litter": litter }).lean().exec()
+        if (fatherProposals) {
+            for (const proposal of fatherProposals) {
+                await FatherPropose.findByIdAndDelete(proposal)
             }
         }
         

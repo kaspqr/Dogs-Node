@@ -1,6 +1,7 @@
 const Litter = require('../models/Litter')
 const Dog = require('../models/Dog')
 const FatherPropose = require('../models/FatherPropose')
+const PuppyPropose = require('../models/PuppyPropose')
 
 // @desc Get all litters
 // @route GET /litters
@@ -50,21 +51,11 @@ const createNewLitter = async (req, res) => {
 // @route PATCH /litters
 // @access Private
 const updateLitter = async (req, res) => {
-    const { id, father } = req.body
+    const { id, father, removeFather } = req.body
 
     // Confirm data
-    if (!id || !father) {
-        return res.status(400).json({ message: 'Litter ID and father required' })
-    }
-
-    const dog = await Dog.findById(father).exec()
-
-    if (!dog) {
-        return res.status(400).json({ message: `Dog with id ${dog} doesn't exist` })
-    }
-
-    if (dog?.female !== false) {
-        return res.status(400).json({ message: `Dog with id ${dog} is not male` })
+    if (!id || (!father && !removeFather)) {
+        return res.status(400).json({ message: 'Litter ID and either father or remove father required' })
     }
 
     const litter = await Litter.findById(id).exec()
@@ -73,15 +64,37 @@ const updateLitter = async (req, res) => {
         return res.status(400).json({ message: 'Litter not found' })
     }
 
-    const fatherProposes = await FatherPropose.find({ "litter": litter }).lean().exec()
+    if (father) {
+        const dog = await Dog.findById(father).exec()
 
-    if (fatherProposes) {
-        for (const fatherPropose of fatherProposes) {
-            await FatherPropose.findByIdAndDelete(fatherPropose)
+        if (!dog) {
+            return res.status(400).json({ message: `Dog with id ${dog} doesn't exist` })
         }
+
+        if (dog?.female !== false) {
+            return res.status(400).json({ message: `Dog with id ${dog} is not male` })
+        }
+
+        const fatherProposes = await FatherPropose.find({ "litter": litter }).lean().exec()
+
+        if (fatherProposes) {
+            for (const fatherPropose of fatherProposes) {
+                await FatherPropose.findByIdAndDelete(fatherPropose)
+            }
+        }
+
+        const puppyProposes = await PuppyPropose.find({ "litter": litter, "puppy": father }).lean().exec()
+
+        if (puppyProposes) {
+            for (const puppyPropose of puppyProposes) {
+                await PuppyPropose.findByIdAndDelete(puppyPropose)
+            }
+        }
+
+        litter.father = father
     }
 
-    litter.father = father
+    if (removeFather) litter.father = null
 
     const updatedLitter = await litter.save()
 
