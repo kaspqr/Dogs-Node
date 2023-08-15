@@ -39,6 +39,7 @@ app.use('/messages', require('./routes/messageRoutes'))
 app.use('/messagereports', require('./routes/messageReportRoutes'))
 app.use('/fatherproposes', require('./routes/fatherProposeRoutes'))
 app.use('/puppyproposes', require('./routes/puppyProposeRoutes'))
+app.use('/dogproposes', require('./routes/dogProposeRoutes'))
 
 app.all('*', (req, res) => {
     res.status(404)
