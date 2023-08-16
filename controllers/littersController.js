@@ -125,6 +125,22 @@ const deleteLitter = async (req, res) => {
         console.log(`removed litter from dog ${updatedDog._id}`)
     }
 
+    const fatherProposes = await FatherPropose.find({ "litter": litter }).lean().exec()
+
+    if (fatherProposes) {
+        for (const fatherPropose of fatherProposes) {
+            await FatherPropose.findByIdAndDelete(fatherPropose)
+        }
+    }
+
+    const puppyProposes = await PuppyPropose.find({ "litter": litter }).lean().exec()
+
+    if (puppyProposes) {
+        for (const puppyPropose of puppyProposes) {
+            await PuppyPropose.findByIdAndDelete(puppyPropose)
+        }
+    }
+
     const result = await litter.deleteOne()
 
     const reply = `Litter with ID ${result._id} deleted`

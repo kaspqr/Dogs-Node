@@ -4,6 +4,9 @@ const Litter = require('../models/Litter')
 const Advertisement = require('../models/Advertisement')
 const Conversation = require('../models/Conversation')
 const Message = require('../models/Message')
+const DogPropose = require('../models/DogPropose')
+const FatherPropose = require('../models/FatherPropose')
+const PuppyPropose = require('../models/PuppyPropose')
 const bcrypt = require('bcrypt')
 
 // @desc Get all users
@@ -260,6 +263,27 @@ const deleteUser = async (req, res) => {
                         // Delete the litter
                         await Litter.findByIdAndDelete(litter)
                     }
+                }
+            }
+
+            const dogProposes = await DogPropose.find({ "dog": dog }).lean().exec()
+            if (dogProposes) {
+                for (const proposal of dogProposes) {
+                    await DogPropose.findByIdAndDelete(proposal)
+                }
+            }
+
+            const fatherProposes = await FatherPropose.find({ "father": dog }).lean().exec()
+            if (fatherProposes) {
+                for (const proposal of fatherProposes) {
+                    await FatherPropose.findByIdAndDelete(proposal)
+                }
+            }
+
+            const puppyProposes = await PuppyPropose.find({ "puppy": dog }).lean().exec()
+            if (puppyProposes) {
+                for (const proposal of puppyProposes) {
+                    await PuppyPropose.findByIdAndDelete(proposal)
                 }
             }
 

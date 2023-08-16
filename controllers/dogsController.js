@@ -3,6 +3,7 @@ const Dog = require('../models/Dog')
 const User = require('../models/User')
 const PuppyPropose = require('../models/PuppyPropose')
 const FatherPropose = require('../models/FatherPropose')
+const DogPropose = require('../models/DogPropose')
 
 // @desc Get all dogs
 // @route GET /dogs
@@ -99,7 +100,7 @@ const createNewDog = async (req, res) => {
 // @route PATCH /dogs
 // @access Private
 const updateDog = async (req, res) => {
-    const { id, instagram, facebook, youtube, tiktok, user, country, region, litter, 
+    const { id, name, instagram, facebook, youtube, tiktok, user, country, region, litter, 
         heat, sterilized, death, info, active, microchipped, chipnumber, passport } = req.body
 
     // Confirm data
@@ -115,7 +116,35 @@ const updateDog = async (req, res) => {
 
 
     if (user?.length) {
+        const validUser = await User.findById(user).exec()
+        if (!validUser) return res.status(400).json({ message: 'User not found' })
+
+        const dogProposes = await DogPropose.find({ "dog": id }).lean().exec()
+        if (dogProposes) {
+            for (const proposal of dogProposes) {
+                await DogPropose.findByIdAndDelete(proposal)
+            }
+        }
+
+        const fatherProposes = await FatherPropose.find({ "father": id }).lean().exec()
+        if (fatherProposes) {
+            for (const proposal of fatherProposes) {
+                await FatherPropose.findByIdAndDelete(proposal)
+            }
+        }
+
+        const puppyProposes = await PuppyPropose.find({ "puppy": id }).lean().exec()
+        if (puppyProposes) {
+            for (const proposal of puppyProposes) {
+                await PuppyPropose.findByIdAndDelete(proposal)
+            }
+        }
+
         dog.user = user
+    }
+
+    if (name?.length) {
+        dog.name = name
     }
 
     if (instagram?.length) {
@@ -227,6 +256,27 @@ const deleteDog = async (req, res) => {
 
     if (!dog) {
         return res.status(400).json({ message: 'Dog not found' })
+    }
+
+    const dogProposes = await DogPropose.find({ "dog": id }).lean().exec()
+    if (dogProposes) {
+        for (const proposal of dogProposes) {
+            await DogPropose.findByIdAndDelete(proposal)
+        }
+    }
+
+    const fatherProposes = await FatherPropose.find({ "father": id }).lean().exec()
+    if (fatherProposes) {
+        for (const proposal of fatherProposes) {
+            await FatherPropose.findByIdAndDelete(proposal)
+        }
+    }
+
+    const puppyProposes = await PuppyPropose.find({ "puppy": id }).lean().exec()
+    if (puppyProposes) {
+        for (const proposal of puppyProposes) {
+            await PuppyPropose.findByIdAndDelete(proposal)
+        }
     }
 
     const result = await dog.deleteOne()
