@@ -34,11 +34,11 @@ const getAllUsers = async (req, res) => {
 // @route POST /users
 // @access Private
 const createNewUser = async (req, res) => {
-    const { username, password, name, email, country, region } = req.body
+    const { username, password, name, email, country, region, bio } = req.body
 
     // Confirm data
     if (!username?.length || !password?.length || !name?.length || !email?.length || !country?.length) {
-        return res.status(400).json({ message: 'All fields except region are required' })
+        return res.status(400).json({ message: 'All fields except region and bio are required' })
     }
 
     // Check for duplicates
@@ -66,6 +66,9 @@ const createNewUser = async (req, res) => {
 
     // If a region was included, add it
     if (region?.length) userObject.region = region
+
+    // If a region was included, add it
+    if (bio?.length) userObject.bio = bio
 
     // Create and store new user
     const user = await User.create(userObject)
