@@ -7,9 +7,6 @@ const Litter = require('../models/Litter')
 // @access Private
 const getAllFatherProposes = async (req, res) => {
     const fatherProposes = await FatherPropose.find().lean()
-    /* if (!fatherProposes?.length) {
-        return res.status(400).json({ message: 'No father proposals found' })
-    } */
     res.json(fatherProposes)
 }
 
@@ -35,6 +32,9 @@ const createNewFatherPropose = async (req, res) => {
         return res.status(400).json({ message: `Litter with ID ${proposedLitter} does not exist` })
     }
 
+    // See if a proposal has already been made for this dog
+    // If it has, delete it, as you shouldn't have proposals for the same dog
+    // For more than one litter
     const proposal = await FatherPropose.findOne({ "father": father }).lean().exec()
 
     if (proposal) await FatherPropose.findByIdAndDelete(proposal)

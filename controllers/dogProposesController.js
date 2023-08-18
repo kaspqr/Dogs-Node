@@ -32,6 +32,9 @@ const createNewDogPropose = async (req, res) => {
         return res.status(400).json({ message: `User with ID ${proposedUser} does not exist` })
     }
 
+    // See if a proposal has already been made for this dog
+    // If it has, delete it, as you shouldn't have proposals for the same dog
+    // To more than one user
     const proposal = await DogPropose.findOne({ "dog": dog }).lean().exec()
 
     if (proposal) await DogPropose.findByIdAndDelete(proposal)

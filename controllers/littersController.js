@@ -64,6 +64,7 @@ const updateLitter = async (req, res) => {
         return res.status(400).json({ message: 'Litter not found' })
     }
 
+    // Updating the father
     if (father) {
         const dog = await Dog.findById(father).exec()
 
@@ -75,6 +76,7 @@ const updateLitter = async (req, res) => {
             return res.status(400).json({ message: `Dog with id ${dog} is not male` })
         }
 
+        // Deleting all father proposes made to the litter, since a father has now been chosen
         const fatherProposes = await FatherPropose.find({ "litter": litter }).lean().exec()
 
         if (fatherProposes) {
@@ -83,6 +85,8 @@ const updateLitter = async (req, res) => {
             }
         }
 
+        // If the father was also proposed as a puppy, the proposal must be deleted
+        // As the dog cannot be both the father and the puppy of said litter
         const puppyProposes = await PuppyPropose.find({ "litter": litter, "puppy": father }).lean().exec()
 
         if (puppyProposes) {
@@ -91,9 +95,11 @@ const updateLitter = async (req, res) => {
             }
         }
 
+        // Finally, update the father
         litter.father = father
     }
 
+    // If the owner of the litter's mother or the owner of the litter's father wants to remove the father from the litter
     if (removeFather) litter.father = null
 
     const updatedLitter = await litter.save()
@@ -117,6 +123,7 @@ const deleteLitter = async (req, res) => {
         return res.status(400).json({ message: 'Litter not found' })
     }
 
+    // Find all the dogs belonging to the litter and update their litter to null
     const dogs = await Dog.find({ "litter": id }).lean().exec()
 
     for (const dog of dogs) {
@@ -125,6 +132,7 @@ const deleteLitter = async (req, res) => {
         console.log(`removed litter from dog ${updatedDog._id}`)
     }
 
+    // Delete all proposals made to this litter
     const fatherProposes = await FatherPropose.find({ "litter": litter }).lean().exec()
 
     if (fatherProposes) {
@@ -141,6 +149,7 @@ const deleteLitter = async (req, res) => {
         }
     }
 
+    // Finally, delete the litter
     const result = await litter.deleteOne()
 
     const reply = `Litter with ID ${result._id} deleted`

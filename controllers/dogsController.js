@@ -114,11 +114,12 @@ const updateDog = async (req, res) => {
         return res.status(400).json({ message: 'Dog not found' })
     }
 
-
+    // Changing administrative user
     if (user?.length) {
         const validUser = await User.findById(user).exec()
         if (!validUser) return res.status(400).json({ message: 'User not found' })
 
+        // Delete all proposals made for this dog due to it's administrative user being changed
         const dogProposes = await DogPropose.find({ "dog": id }).lean().exec()
         if (dogProposes) {
             for (const proposal of dogProposes) {
@@ -175,14 +176,18 @@ const updateDog = async (req, res) => {
         dog.region = region
     }
 
+    // Changing the dog's litter
     if (litter?.length) {
+        // Delete all puppy proposals as it will now have a litter
         const proposals = await PuppyPropose.find({ "puppy": dog }).lean().exec()
         if (proposals) {
             for (const proposal of proposals) {
                 await PuppyPropose.findByIdAndDelete(proposal)
             }
         }
-        
+       
+        // If the dog was previously also proposed as the father of the litter it is now being added to
+        // Delete said proposal
         const fatherProposals = await FatherPropose.find({ "father": dog, "litter": litter }).lean().exec()
         if (fatherProposals) {
             for (const proposal of fatherProposals) {
@@ -238,10 +243,16 @@ const deleteDog = async (req, res) => {
 
     const dog = await Dog.findById(id).exec()
 
+    if (!dog) {
+        return res.status(400).json({ message: 'Dog not found' })
+    }
+
     // Check if the dog has a litter in the database
     const litter = await Litter.find({ "mother": id }).lean().exec()
 
     if (litter) {
+        // Get all the dogs that belong to said litter, as the litter will be deleted
+        // Meaning of the litter's dogs' litter has to be updated to null
         const dogs = await Dog.find({ "litter": litter }).lean().exec()
 
         for (const dog of dogs) {
@@ -254,10 +265,7 @@ const deleteDog = async (req, res) => {
         console.log(result)
     }
 
-    if (!dog) {
-        return res.status(400).json({ message: 'Dog not found' })
-    }
-
+    // Delete all of the dog's proposals
     const dogProposes = await DogPropose.find({ "dog": id }).lean().exec()
     if (dogProposes) {
         for (const proposal of dogProposes) {
@@ -279,6 +287,7 @@ const deleteDog = async (req, res) => {
         }
     }
 
+    // Finally, delete the dog
     const result = await dog.deleteOne()
 
     const reply = `Dog with ID ${result._id} deleted`

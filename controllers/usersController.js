@@ -94,6 +94,8 @@ const updateUser = async (req, res) => {
         return res.status(400).json({ message: 'User not found' })
     }
 
+    // Current password is required in the front end if the user tries to change their profile
+    // But not in the backend in case an admin tries to ban the user and change active to false
     if (currentPassword?.length) {
         const match = await bcrypt.compare(currentPassword, user.password)
 
@@ -110,6 +112,7 @@ const updateUser = async (req, res) => {
         return res.status(409).json({ message: 'Duplicate email' })
     }
 
+    // New password
     if (password) {
         // Hash password
         user.password = await bcrypt.hash(password, 10) // salt rounds
@@ -164,6 +167,8 @@ const deleteUser = async (req, res) => {
         return res.status(400).json({ message: 'User not found' })
     }
 
+    // For users trying to delete their accounts themselves
+    // A current password is required on the front end
     if (currentPassword?.length) {
         const match = await bcrypt.compare(currentPassword, user.password)
 
@@ -172,6 +177,7 @@ const deleteUser = async (req, res) => {
         }
     }
 
+    // Find all dogs, advertisements and conversations of said user
     const dogs = await Dog.find({ "user": id }).lean().exec()
     const advertisements = await Advertisement.find({ "poster": id }).lean().exec()
     const receiverConversations = await Conversation.find({ "receiver": id }).lean().exec()
@@ -266,6 +272,7 @@ const deleteUser = async (req, res) => {
                 }
             }
 
+            // Delete all the proposals made for the dog
             const dogProposes = await DogPropose.find({ "dog": dog }).lean().exec()
             if (dogProposes) {
                 for (const proposal of dogProposes) {

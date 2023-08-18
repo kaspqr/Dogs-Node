@@ -7,9 +7,6 @@ const Dog = require('../models/Dog')
 // @access Private
 const getAllDogReports = async (req, res) => {
     const dogReports = await DogReport.find().lean()
-    if (!dogReports?.length) {
-        return res.status(400).json({ message: 'No dog reports found' })
-    }
     res.json(dogReports)
 }
 

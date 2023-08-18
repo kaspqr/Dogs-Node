@@ -8,9 +8,6 @@ const Conversation = require('../models/Conversation')
 // @access Private
 const getAllMessageReports = async (req, res) => {
     const messageReports = await MessageReport.find().lean()
-    if (!messageReports?.length) {
-        return res.status(400).json({ message: 'No message reports found' })
-    }
     res.json(messageReports)
 }
 

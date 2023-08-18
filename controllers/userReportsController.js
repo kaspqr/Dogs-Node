@@ -6,9 +6,6 @@ const User = require('../models/User')
 // @access Private
 const getAllUserReports = async (req, res) => {
     const userReports = await UserReport.find().lean()
-    if (!userReports?.length) {
-        return res.status(400).json({ message: 'No user reports found' })
-    }
     res.json(userReports)
 }
 
