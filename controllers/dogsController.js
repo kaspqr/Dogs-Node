@@ -10,9 +10,6 @@ const DogPropose = require('../models/DogPropose')
 // @access Private
 const getAllDogs = async (req, res) => {
     const dogs = await Dog.find().lean()
-    if (!dogs?.length) {
-        return res.status(400).json({ message: 'No dogs found' })
-    }
     res.json(dogs)
 }
 
@@ -178,24 +175,29 @@ const updateDog = async (req, res) => {
 
     // Changing the dog's litter
     if (litter?.length) {
-        // Delete all puppy proposals as it will now have a litter
-        const proposals = await PuppyPropose.find({ "puppy": dog }).lean().exec()
-        if (proposals) {
-            for (const proposal of proposals) {
-                await PuppyPropose.findByIdAndDelete(proposal)
+
+        if (litter === 'none ') {
+            dog.litter = null
+        } else {
+            // Delete all puppy proposals as it will now have a litter
+            const proposals = await PuppyPropose.find({ "puppy": dog }).lean().exec()
+            if (proposals) {
+                for (const proposal of proposals) {
+                    await PuppyPropose.findByIdAndDelete(proposal)
+                }
             }
-        }
-       
-        // If the dog was previously also proposed as the father of the litter it is now being added to
-        // Delete said proposal
-        const fatherProposals = await FatherPropose.find({ "father": dog, "litter": litter }).lean().exec()
-        if (fatherProposals) {
-            for (const proposal of fatherProposals) {
-                await FatherPropose.findByIdAndDelete(proposal)
-            }
-        }
         
-        dog.litter = litter
+            // If the dog was previously also proposed as the father of the litter it is now being added to
+            // Delete said proposal
+            const fatherProposals = await FatherPropose.find({ "father": dog, "litter": litter }).lean().exec()
+            if (fatherProposals) {
+                for (const proposal of fatherProposals) {
+                    await FatherPropose.findByIdAndDelete(proposal)
+                }
+            }
+            
+            dog.litter = litter
+        }
     }
 
     if (typeof heat === 'boolean') {

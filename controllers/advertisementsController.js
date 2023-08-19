@@ -6,9 +6,6 @@ const Advertisement = require('../models/Advertisement')
 // @access Private
 const getAllAdvertisements = async (req, res) => {
     const advertisements = await Advertisement.find().lean()
-    if (!advertisements?.length) {
-        return res.status(400).json({ message: 'No advertisements found' })
-    }
     res.json(advertisements)
 }
 

@@ -8,9 +8,6 @@ const PuppyPropose = require('../models/PuppyPropose')
 // @access Private
 const getAllLitters = async (req, res) => {
     const litters = await Litter.find().lean()
-    if (!litters?.length) {
-        return res.status(400).json({ message: 'No litters found' })
-    }
     res.json(litters)
 }
 

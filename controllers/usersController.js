@@ -23,9 +23,6 @@ const getAllUsers = async (req, res) => {
         res.json(user)
     } else {
         const users = await User.find().select('-password').lean()
-        if (!users?.length) {
-            return res.status(400).json({ message: 'No users found' })
-        }
         res.json(users)
     }
 }
