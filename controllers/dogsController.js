@@ -17,7 +17,7 @@ const getAllDogs = async (req, res) => {
 // @route POST /dogs
 // @access Private
 const createNewDog = async (req, res) => {
-    const { user, female, country, region, litter, heat, 
+    const { user, female, country, region, litter, heat, image,
         sterilized, birth, death, name, breed, info, microchipped, chipnumber, passport } = req.body
 
     // Confirm data
@@ -35,6 +35,10 @@ const createNewDog = async (req, res) => {
 
     if (country?.length) {
         dogObject.country = country
+    }
+
+    if (image?.length) {
+        dogObject.image = image
     }
 
     if (region?.length) {
@@ -97,7 +101,7 @@ const createNewDog = async (req, res) => {
 // @route PATCH /dogs
 // @access Private
 const updateDog = async (req, res) => {
-    const { id, name, instagram, facebook, youtube, tiktok, user, country, region, litter, 
+    const { id, name, instagram, facebook, youtube, tiktok, user, country, region, litter, image,
         heat, sterilized, death, info, active, microchipped, chipnumber, passport } = req.body
 
     // Confirm data
@@ -226,6 +230,14 @@ const updateDog = async (req, res) => {
 
     if (typeof passport === 'boolean') {
         dog.passport = passport
+    }
+
+    if (image?.length) {
+        if (image === 'none ') {
+            dog.image = null
+        } else {
+            dog.image = image
+        }
     }
 
     await dog.save()

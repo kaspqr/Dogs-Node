@@ -81,7 +81,7 @@ const createNewUser = async (req, res) => {
 // @route PATCH /users
 // @access Private
 const updateUser = async (req, res) => {
-    const { id, active, password, name, email, country, region, bio, picture, currentPassword } = req.body
+    const { id, active, password, name, email, country, region, bio, picture, currentPassword, roles } = req.body
 
     // Confirm data
     if (!id) {
@@ -144,6 +144,10 @@ const updateUser = async (req, res) => {
 
     if (picture) {
         user.picture = picture
+    }
+
+    if (roles) {
+        user.roles = roles
     }
 
     const updatedUser = await user.save()

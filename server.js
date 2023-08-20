@@ -19,7 +19,7 @@ connectDB()
 
 app.use(logger)
 app.use(cors(corsOptions))
-app.use(express.json())
+app.use(express.json({ limit: '50mb' }))
 app.use(cookieParser())
 app.use('/', express.static(path.join(__dirname, 'public')))
 app.use('/', require('./routes/root'))
@@ -40,6 +40,7 @@ app.use('/messagereports', require('./routes/messageReportRoutes'))
 app.use('/fatherproposes', require('./routes/fatherProposeRoutes'))
 app.use('/puppyproposes', require('./routes/puppyProposeRoutes'))
 app.use('/dogproposes', require('./routes/dogProposeRoutes'))
+app.use('/dogimages', require('./routes/dogImageRoutes'))
 
 app.all('*', (req, res) => {
     res.status(404)

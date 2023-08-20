@@ -74,7 +74,11 @@ const dogSchema = new mongoose.Schema({
     },
     region: {
         type: String
+    },
+    image: {
+        type: String
     }
+
 })
 
 module.exports = mongoose.model('Dog', dogSchema)
