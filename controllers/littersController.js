@@ -15,11 +15,11 @@ const getAllLitters = async (req, res) => {
 // @route POST /litters
 // @access Private
 const createNewLitter = async (req, res) => {
-    const { mother, born, children, breed } = req.body
+    const { mother, born, children, breed, country, region } = req.body
 
     // Confirm data
-    if (!mother || !born || !children || !breed) {
-        return res.status(400).json({ message: 'Mother, breed, date of birth and amount of children is required' })
+    if (!mother || !born || !children || !breed || !country) {
+        return res.status(400).json({ message: 'Mother, breed, country, date of birth and amount of children is required' })
     }
 
     const isFemale = await Dog.findById(mother)
@@ -32,7 +32,9 @@ const createNewLitter = async (req, res) => {
         return res.status(400).json({ message: `Dog with ID ${mother} is not female` })
     }
 
-    const litterObject = { mother, born, children, breed }
+    const litterObject = { mother, born, children, breed, country }
+
+    if (region?.length) litterObject.region = region
 
     // Create and store new litter
     const litter = await Litter.create(litterObject)

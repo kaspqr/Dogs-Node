@@ -1,24 +1,24 @@
 const { cloudinary } = require('../utils/cloudinary')
-const Dog = require('../models/Dog')
+const User = require('../models/User')
 
-const uploadDogImage = async (req, res) => {
+const uploadUserImage = async (req, res) => {
     try {
         const fileString = req.body.data
-        const id = req.body.dog_id
+        const id = req.body.user_id
 
-        const dog = await Dog.findById(id).exec()
+        const user = await User.findById(id).exec()
 
         const uploadedResponse = await cloudinary.uploader.upload(fileString, {
             upload_preset: 'berao33q',
-            folder: 'dogimages',
-            public_id: `dogimages_${id}`,
+            folder: 'userimages',
+            public_id: `userimages_${id}`,
             overwrite: true
         })
         console.log(uploadedResponse.secure_url)
 
-        if (dog) dog.image = uploadedResponse?.secure_url
+        if (user) user.image = uploadedResponse?.secure_url
 
-        await dog.save()
+        await user.save()
 
         res.json({ message: "Uploaded" })
     } catch (error) {
@@ -28,5 +28,5 @@ const uploadDogImage = async (req, res) => {
 }
 
 module.exports = {
-    uploadDogImage
+    uploadUserImage
 }

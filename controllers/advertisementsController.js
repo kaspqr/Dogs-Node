@@ -66,7 +66,7 @@ const createNewAdvertisement = async (req, res) => {
 // @route PATCH /advertisements
 // @access Private
 const updateAdvertisement = async (req, res) => {
-    const { id, premium, title, type, price, info, active, currency, country, region } = req.body
+    const { id, premium, title, type, price, info, active, currency, country, region, image } = req.body
 
     // Confirm data
     if (!id) {
@@ -115,6 +115,14 @@ const updateAdvertisement = async (req, res) => {
 
     if (typeof active === 'boolean') {
         advertisement.active = active
+    }
+
+    if (image?.length) {
+        if (image === 'none ') {
+            advertisement.image = null
+        } else {
+            advertisement.image = image
+        }
     }
 
     const updatedAdvertisement = await advertisement.save()

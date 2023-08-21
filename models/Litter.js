@@ -10,10 +10,6 @@ const litterSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Dog'
     },
-    proposedfather: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Dog'
-    },
     breed: {
         type: String,
         required: true,
@@ -31,6 +27,13 @@ const litterSchema = new mongoose.Schema({
         type: Number,
         default: 1,
         required: true
+    },
+    country: {
+        type: String,
+        required: true
+    },
+    region: {
+        type: String,
     }
 })
 
