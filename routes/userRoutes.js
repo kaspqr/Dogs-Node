@@ -10,4 +10,7 @@ router.route('/')
     .patch(verifyJWT, usersController.updateUser)
     .delete(verifyJWT, usersController.deleteUser)
 
+router.route('/:id/verify/:token')
+    .get(usersController.verifyEmail)
+
 module.exports = router

@@ -1,7 +1,9 @@
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-
+const Token = require('../models/Token')
+const sendEmail = require('../utils/sendEmail')
+const crypto = require('crypto')
 
 // @desc Login
 // @route POST /auth
@@ -21,7 +23,22 @@ const login = async (req, res) => {
 
     const match = await bcrypt.compare(password, foundUser.password)
 
-    if (!match) return res.status(401).json({ message: 'Unauthorized' })
+    if (!match) return res.status(401).json({ message: 'Username and password do not match' })
+
+    if (foundUser.verified === false) {
+        let token = await Token.findOne({ user: foundUser._id })
+        if (!token) {
+            token = await Token.create({ // For email verification
+                user: foundUser._id,
+                token: crypto.randomBytes(32).toString('hex')
+            })
+
+            const url = `${process.env.BASE_URL}users/${foundUser?._id}/verify/${token?.token}`
+
+            sendEmail(foundUser?.email, 'Verify Email', url)
+        }
+        return res.status(403).json({ message: 'A verification link has been sent to your email, please click on it.' })
+    }
 
     const accessToken = jwt.sign(
         {
@@ -60,7 +77,7 @@ const login = async (req, res) => {
 const refresh = (req, res) => {
     const cookies = req.cookies
 
-    if (!cookies?.jwt) return res.status(401).json({ message: 'Unauthorized' })
+    if (!cookies?.jwt) return res.status(451).json({ message: 'Unauthorized' })
 
     const refreshToken = cookies.jwt
 

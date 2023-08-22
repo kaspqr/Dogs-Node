@@ -9,6 +9,44 @@ const FatherPropose = require('../models/FatherPropose')
 const PuppyPropose = require('../models/PuppyPropose')
 const bcrypt = require('bcrypt')
 
+const Token = require('../models/Token')
+const sendEmail = require('../utils/sendEmail')
+const crypto = require('crypto')
+
+// @desc Email verification
+// @route GET /users/:id/verify/:token
+// @access Pricate
+const verifyEmail = async (req, res) => {
+    try {
+        const userId = req.params.id
+        const tokenId = req.params.token
+
+        const user = await User.findById(userId)
+        if (!user) return res.status(400).send({ message: "Invalid Link" })
+
+        console.log(userId)
+
+        const token = await Token.findOne({ 
+            user: userId,
+            token: tokenId
+        })
+
+        if (!token) return res.status(400).send({ message: "Invalid Link" })
+
+        user.verified = true
+
+        await user.save()
+
+        await token.deleteOne()
+
+        res.status(200).send({ message: 'Email Verified Successfully' })
+
+    } catch (error) {
+        res.status(500).send({ message: 'Internal Server Error' })
+        console.log(error)
+    }
+}
+
 // @desc Get all users
 // @route GET /users
 // @access Private
@@ -71,7 +109,17 @@ const createNewUser = async (req, res) => {
     const user = await User.create(userObject)
 
     if (user) { //Created
+        const token = await Token.create({ // For email verification
+            user: user._id,
+            token: crypto.randomBytes(32).toString('hex')
+        })
+
+        const url = `${process.env.BASE_URL}users/${user?._id}/verify/${token?.token}`
+
+        sendEmail(user?.email, 'Verify Email', url)
+
         res.status(201).json({ message: `New user ${username} created` })
+
     } else {
         res.status(400).json({ message: 'Invalid user data received' })
     }
@@ -312,6 +360,7 @@ const deleteUser = async (req, res) => {
 }
 
 module.exports = {
+    verifyEmail,
     getAllUsers,
     createNewUser,
     updateUser,

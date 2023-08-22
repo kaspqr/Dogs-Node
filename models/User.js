@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema({
     },
     region: {
         type: String,
+    },
+    verified: {
+        type: Boolean,
+        default: false
     }
 })
 
