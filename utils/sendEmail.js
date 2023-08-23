@@ -57,6 +57,7 @@ const sendEmail = (email, subject, text) => {
                         <b class="button-text">Verify Email</b>
                     </a>
                     <p>If the verification button does not work, please go to the link below</p>
+                    <p>If you didn't sign up for this, you can safely ignore this email.</p>
                 </div>
             </div>
         </body>
@@ -68,7 +69,7 @@ const sendEmail = (email, subject, text) => {
     `
 
     mg.messages.create('sandboxbcd5a836fe9e486fb34b1b6263e6e542.mailgun.org', {
-        from: "Dogs Database <mailgun@sandboxbcd5a836fe9e486fb34b1b6263e6e542.mailgun.org>",
+        from: "Paw Retriever <mailgun@sandboxbcd5a836fe9e486fb34b1b6263e6e542.mailgun.org>",
         to: [`${email}`],
         subject: `${subject}`,
         html: `${emailHTML}`,
