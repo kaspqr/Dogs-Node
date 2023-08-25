@@ -13,4 +13,7 @@ router.route('/')
 router.route('/:id/verify/:token')
     .get(usersController.verifyEmail)
 
+router.route('/resetpassword')
+    .patch(usersController.resetPassword)
+
 module.exports = router

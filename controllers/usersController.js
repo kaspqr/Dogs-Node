@@ -10,6 +10,7 @@ const PuppyPropose = require('../models/PuppyPropose')
 const bcrypt = require('bcrypt')
 
 const Token = require('../models/Token')
+const ResetToken = require('../models/ResetToken')
 const sendEmail = require('../utils/sendEmail')
 const crypto = require('crypto')
 
@@ -116,13 +117,108 @@ const createNewUser = async (req, res) => {
 
         const url = `${process.env.BASE_URL}users/${user?._id}/verify/${token?.token}`
 
-        sendEmail(user?.email, 'Verify Email', url)
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        border: 1px solid #e0e0e0;
+                        border-radius: 5px;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    }
+                    .header {
+                        background-color: #007bff;
+                        color: white;
+                        text-align: center;
+                        padding: 10px;
+                        border-top-left-radius: 5px;
+                        border-top-right-radius: 5px;
+                    }
+                    .content {
+                        padding: 20px;
+                    }
+                    .button {
+                        display: inline-block;
+                        padding: 10px 20px;
+                        background-color: #007bff;
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                    }
+                    .button-text {
+                        color: white;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>Email Verification</h1>
+                    </div>
+                    <div class="content">
+                        <p>Thank you for signing up! To verify your email address, please click the button below:</p>
+                        <a class="button" href="${url}">
+                            <b class="button-text">Verify Email</b>
+                        </a>
+                        <p>If the verification button does not work, please go to the link below</p>
+                        <p>If you didn't sign up for this, you can safely ignore this email.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            <noscript>
+                Verification Link:
+                ${url}
+            </noscript>
+        `
+
+        sendEmail(user?.email, 'Verify Email', html)
 
         res.status(201).json({ message: `New user ${username} created` })
 
     } else {
         res.status(400).json({ message: 'Invalid user data received' })
     }
+}
+
+// @desc Update user password
+// @route POST /users/resetpassword
+// @access Private
+const resetPassword = async (req, res) => {
+
+    const { id, password } = req.body
+
+    console.log(req.body)
+
+    // Confirm data
+    if (!id || !password) res.status(400).json({ message: 'ID and password is required' })
+
+    const user = await User.findById(id).exec()
+
+    if (!user) {
+        return res.status(400).json({ message: 'User not found' })
+    }
+
+    // Hash password
+    user.password = await bcrypt.hash(password, 10) // salt rounds
+
+    await user.save()
+
+    const resetToken = await ResetToken.findOne({ user: id }).lean().exec()
+
+    const result = await ResetToken.findByIdAndDelete(resetToken._id)
+
+    console.log(result)
+
+    res.json({ message: 'Password Reset' })
 }
 
 // @desc Update user
@@ -144,6 +240,7 @@ const updateUser = async (req, res) => {
 
     // Current password is required in the front end if the user tries to change their profile
     // But not in the backend in case an admin tries to ban the user and change active to false
+    // Neither is it required when resetting the password through an email link
     if (currentPassword?.length) {
         const match = await bcrypt.compare(currentPassword, user.password)
 
@@ -162,8 +259,13 @@ const updateUser = async (req, res) => {
 
     // New password
     if (password) {
+
         // Hash password
         user.password = await bcrypt.hash(password, 10) // salt rounds
+
+        const resetToken = await ResetToken.findOne({ user: id }).lean().exec()
+
+        if (resetToken) await ResetToken.findByIdAndDelete(resetToken)
     }
 
     if (typeof active === 'boolean') {
@@ -361,6 +463,7 @@ const deleteUser = async (req, res) => {
 
 module.exports = {
     verifyEmail,
+    resetPassword,
     getAllUsers,
     createNewUser,
     updateUser,

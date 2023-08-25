@@ -1,6 +1,6 @@
 const Token = require('../models/Token')
 
-// @desc Get all advertisement reports
+// @desc Get all tokens
 // @route GET /tokens
 // @access Private
 const getAllTokens = async (req, res) => {

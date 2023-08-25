@@ -15,7 +15,7 @@ const login = async (req, res) => {
         return res.status(400).json({ message: 'Username and password is required' })
     }
 
-    const foundUser = await User.findOne({ username }).exec()
+    const foundUser = await User.findOne({ username }).lean().exec()
 
     if (!foundUser) {
         return res.status(401).json({ message: 'User not found' })
@@ -26,7 +26,7 @@ const login = async (req, res) => {
     if (!match) return res.status(401).json({ message: 'Username and password do not match' })
 
     if (foundUser.verified === false) {
-        let token = await Token.findOne({ user: foundUser._id })
+        let token = await Token.findOne({ user: foundUser._id }).lean().exec()
         if (!token) {
             token = await Token.create({ // For email verification
                 user: foundUser._id,
@@ -35,7 +35,70 @@ const login = async (req, res) => {
 
             const url = `${process.env.BASE_URL}users/${foundUser?._id}/verify/${token?.token}`
 
-            sendEmail(foundUser?.email, 'Verify Email', url)
+            const html = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                        }
+                        .container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                            border: 1px solid #e0e0e0;
+                            border-radius: 5px;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                        }
+                        .header {
+                            background-color: #007bff;
+                            color: white;
+                            text-align: center;
+                            padding: 10px;
+                            border-top-left-radius: 5px;
+                            border-top-right-radius: 5px;
+                        }
+                        .content {
+                            padding: 20px;
+                        }
+                        .button {
+                            display: inline-block;
+                            padding: 10px 20px;
+                            background-color: #007bff;
+                            color: white;
+                            text-decoration: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                        }
+                        .button-text {
+                            color: white;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1>Email Verification</h1>
+                        </div>
+                        <div class="content">
+                            <p>Thank you for signing up! To verify your email address, please click the button below:</p>
+                            <a class="button" href="${url}">
+                                <b class="button-text">Verify Email</b>
+                            </a>
+                            <p>If the verification button does not work, please go to the link below</p>
+                            <p>If you didn't sign up for this, you can safely ignore this email.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                <noscript>
+                    Verification Link:
+                    ${url}
+                </noscript>
+            `
+
+            sendEmail(foundUser?.email, 'Verify Email', html)
         }
         return res.status(403).json({ message: 'A verification link has been sent to your email, please click on it.' })
     }

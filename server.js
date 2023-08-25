@@ -43,6 +43,7 @@ app.use('/dogimages', require('./routes/dogImageRoutes'))
 app.use('/advertisementimages', require('./routes/advertisementImageRoutes'))
 app.use('/userimages', require('./routes/userImageRoutes'))
 app.use('/tokens', require('./routes/tokenRoutes'))
+app.use('/resetTokens', require('./routes/resetTokenRoutes'))
 
 app.all('*', (req, res) => {
     res.status(404)
