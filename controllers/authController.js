@@ -15,7 +15,7 @@ const login = async (req, res) => {
         return res.status(400).json({ message: 'Username and password is required' })
     }
 
-    const foundUser = await User.findOne({ username }).lean().exec()
+    const foundUser = await User.findOne({ username }).exec()
 
     if (!foundUser) {
         return res.status(401).json({ message: 'User not found' })
@@ -26,7 +26,7 @@ const login = async (req, res) => {
     if (!match) return res.status(401).json({ message: 'Username and password do not match' })
 
     if (foundUser.verified === false) {
-        let token = await Token.findOne({ user: foundUser._id }).lean().exec()
+        let token = await Token.findOne({ user: foundUser._id }).exec()
         if (!token) {
             token = await Token.create({ // For email verification
                 user: foundUser._id,

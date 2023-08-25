@@ -263,7 +263,7 @@ const updateUser = async (req, res) => {
         // Hash password
         user.password = await bcrypt.hash(password, 10) // salt rounds
 
-        const resetToken = await ResetToken.findOne({ user: id }).lean().exec()
+        const resetToken = await ResetToken.findOne({ user: id }).exec()
 
         if (resetToken) await ResetToken.findByIdAndDelete(resetToken)
     }
