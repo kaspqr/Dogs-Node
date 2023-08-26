@@ -4,6 +4,7 @@ const User = require('../models/User')
 const PuppyPropose = require('../models/PuppyPropose')
 const FatherPropose = require('../models/FatherPropose')
 const DogPropose = require('../models/DogPropose')
+const { cloudinary } = require('../utils/cloudinary')
 
 // @desc Get all dogs
 // @route GET /dogs
@@ -255,6 +256,10 @@ const deleteDog = async (req, res) => {
 
     if (!dog) {
         return res.status(400).json({ message: 'Dog not found' })
+    }
+
+    if (dog?.image) {
+        await cloudinary.uploader.destroy(`dogimages/dogimages_${id}`)
     }
 
     // Check if the dog has a litter in the database

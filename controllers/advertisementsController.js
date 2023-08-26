@@ -1,5 +1,6 @@
 const User = require('../models/User')
 const Advertisement = require('../models/Advertisement')
+const { cloudinary } = require('../utils/cloudinary')
 
 // @desc Get all advertisements
 // @route GET /advertisements
@@ -13,7 +14,7 @@ const getAllAdvertisements = async (req, res) => {
 // @route POST /advertisements
 // @access Private
 const createNewAdvertisement = async (req, res) => {
-    const { premium, poster, title, type, price, info, currency, country, region } = req.body
+    const { premium, poster, title, type, price, info, currency, country, region, image } = req.body
 
     // Confirm data
     if (!poster || !title || !type || !country) {
@@ -56,7 +57,27 @@ const createNewAdvertisement = async (req, res) => {
     const advertisement = await Advertisement.create(advertisementObject)
 
     if (advertisement) { //Created
+
+        if (image?.length) {
+            try {
+        
+                const uploadedResponse = await cloudinary.uploader.upload(image, {
+                    upload_preset: 'berao33q',
+                    folder: 'advertisementimages',
+                    public_id: `advertisementimages_${advertisement?.id}`,
+                    overwrite: true
+                })
+        
+                advertisement.image = uploadedResponse?.secure_url
+        
+                await advertisement.save()
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
         res.status(201).json({ message: `New advertisement ${title} with ID ${advertisement?.id} created` })
+        
     } else {
         res.status(400).json({ message: 'Invalid advertisement data received' })
     }
@@ -144,6 +165,10 @@ const deleteAdvertisement = async (req, res) => {
 
     if (!advertisement) {
         return res.status(400).json({ message: 'Advertisement not found' })
+    }
+
+    if (advertisement?.image) {
+        const result = await cloudinary.uploader.destroy(`advertisementimages/advertisementimages_${id}`)
     }
 
     const result = await advertisement.deleteOne()

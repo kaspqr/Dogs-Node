@@ -15,7 +15,9 @@ const login = async (req, res) => {
         return res.status(400).json({ message: 'Username and password is required' })
     }
 
-    const foundUser = await User.findOne({ username }).exec()
+    const foundUser = username.includes('@') 
+        ? await User.findOne({ email: username }).exec()
+        : await User.findOne({ username }).exec()
 
     if (!foundUser) {
         return res.status(401).json({ message: 'User not found' })

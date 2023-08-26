@@ -13,6 +13,9 @@ router.route('/')
 router.route('/:id/verify/:token')
     .get(usersController.verifyEmail)
 
+router.route('/:id/verifyemail/:emailtoken')
+    .get(usersController.verifyNewEmail)
+
 router.route('/resetpassword')
     .patch(usersController.resetPassword)
 

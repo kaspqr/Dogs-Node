@@ -11,8 +11,10 @@ const bcrypt = require('bcrypt')
 
 const Token = require('../models/Token')
 const ResetToken = require('../models/ResetToken')
+const EmailToken = require('../models/EmailToken')
 const sendEmail = require('../utils/sendEmail')
 const crypto = require('crypto')
+const { cloudinary } = require('../utils/cloudinary')
 
 // @desc Email verification
 // @route GET /users/:id/verify/:token
@@ -25,8 +27,6 @@ const verifyEmail = async (req, res) => {
         const user = await User.findById(userId)
         if (!user) return res.status(400).send({ message: "Invalid Link" })
 
-        console.log(userId)
-
         const token = await Token.findOne({ 
             user: userId,
             token: tokenId
@@ -35,6 +35,38 @@ const verifyEmail = async (req, res) => {
         if (!token) return res.status(400).send({ message: "Invalid Link" })
 
         user.verified = true
+
+        await user.save()
+
+        await token.deleteOne()
+
+        res.status(200).send({ message: 'Email Verified Successfully' })
+
+    } catch (error) {
+        res.status(500).send({ message: 'Internal Server Error' })
+        console.log(error)
+    }
+}
+
+// @desc New email verification
+// @route GET /users/:id/verifyemail/:emailtoken
+// @access Pricate
+const verifyNewEmail = async (req, res) => {
+    try {
+        const userId = req.params.id
+        const tokenId = req.params.emailtoken
+
+        const user = await User.findById(userId)
+        if (!user) return res.status(400).send({ message: "Invalid Link" })
+
+        const token = await EmailToken.findOne({ 
+            user: userId,
+            emailToken: tokenId
+        })
+
+        if (!token) return res.status(400).send({ message: "Invalid Link" })
+
+        user.email = token?.email
 
         await user.save()
 
@@ -277,7 +309,79 @@ const updateUser = async (req, res) => {
     }
 
     if (email?.length) {
-        user.email = email
+
+        const token = await EmailToken.create({ // For email verification
+            user: user._id,
+            email: email,
+            emailToken: crypto.randomBytes(32).toString('hex')
+        })
+
+        const url = `${process.env.BASE_URL}users/${user?._id}/verifyemail/${token?.emailToken}`
+
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        border: 1px solid #e0e0e0;
+                        border-radius: 5px;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    }
+                    .header {
+                        background-color: #007bff;
+                        color: white;
+                        text-align: center;
+                        padding: 10px;
+                        border-top-left-radius: 5px;
+                        border-top-right-radius: 5px;
+                    }
+                    .content {
+                        padding: 20px;
+                    }
+                    .button {
+                        display: inline-block;
+                        padding: 10px 20px;
+                        background-color: #007bff;
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                    }
+                    .button-text {
+                        color: white;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>Email Verification</h1>
+                    </div>
+                    <div class="content">
+                        <p>In order to verify your new email address, please click the button below:</p>
+                        <a class="button" href="${url}">
+                            <b class="button-text">Verify Email</b>
+                        </a>
+                        <p>If the verification button does not work, please go to the link below</p>
+                        <p>If you didn't request for your email to be changed, please change your password immediately.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            <noscript>
+                Verification Link:
+                ${url}
+            </noscript>
+        `
+
+        sendEmail(email, 'Verify Email', html)
     }
 
     if (name?.length) {
@@ -319,6 +423,10 @@ const deleteUser = async (req, res) => {
 
     if (!user) {
         return res.status(400).json({ message: 'User not found' })
+    }
+
+    if (user?.image) {
+        await cloudinary.uploader.destroy(`userimages/userimages_${id}`)
     }
 
     // For users trying to delete their accounts themselves
@@ -376,6 +484,9 @@ const deleteUser = async (req, res) => {
 
         // Delete all advertisements posted by the user
         for (const ad of advertisements) {
+            if (ad?.image) {
+                await cloudinary.uploader.destroy(`advertisementimages/advertisementimages_${ad?._id}`)
+            }
             await Advertisement.findByIdAndDelete(ad)
         }
     }
@@ -448,6 +559,10 @@ const deleteUser = async (req, res) => {
                 }
             }
 
+            if (dog?.image) {
+                await cloudinary.uploader.destroy(`dogimages/dogimages_${dog?._id}`)
+            }
+
             // Delete the dog
             await Dog.findByIdAndDelete(dog)
         }
@@ -463,6 +578,7 @@ const deleteUser = async (req, res) => {
 
 module.exports = {
     verifyEmail,
+    verifyNewEmail,
     resetPassword,
     getAllUsers,
     createNewUser,
