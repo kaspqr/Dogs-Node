@@ -35,7 +35,7 @@ const createNewFatherPropose = async (req, res) => {
     // See if a proposal has already been made for this dog
     // If it has, delete it, as you shouldn't have proposals for the same dog
     // For more than one litter
-    const proposal = await FatherPropose.findOne({ "father": father }).lean().exec()
+    const proposal = await FatherPropose.findOne({ "father": father }).exec()
 
     if (proposal) await FatherPropose.findByIdAndDelete(proposal)
 

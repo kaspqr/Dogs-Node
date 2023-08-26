@@ -24,7 +24,7 @@ const createNewMessageReport = async (req, res) => {
 
     const reportedMessage = await Message.findById(message)
     const messageReporter = await User.findById(reporter)
-    const isReported = await MessageReport.findOne({ message }).lean().exec()
+    const isReported = await MessageReport.findOne({ message }).exec()
 
     if (isReported) {
         return res.status(400).json({ message: `Message with ID ${message} has already been reported` })

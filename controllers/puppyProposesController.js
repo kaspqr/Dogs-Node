@@ -35,7 +35,7 @@ const createNewPuppyPropose = async (req, res) => {
     // See if a proposal has already been made for this dog
     // If it has, delete it, as you shouldn't have proposals for the same puppy
     // For more than one litter
-    const proposal = await PuppyPropose.findOne({ "puppy": puppy }).lean().exec()
+    const proposal = await PuppyPropose.findOne({ "puppy": puppy }).exec()
 
     if (proposal) await PuppyPropose.findByIdAndDelete(proposal)
 

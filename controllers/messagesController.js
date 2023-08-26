@@ -38,8 +38,8 @@ const createNewMessage = async (req, res) => {
         }
 
         const isReceiver = await User.findById(receiver).exec()
-        const isConversationReceiver = await Conversation.findOne({ "receiver": receiver, "sender": sender }).lean().exec()
-        const isConversationSender = await Conversation.findOne({ "sender": receiver, "receiver": sender }).lean().exec()
+        const isConversationReceiver = await Conversation.findOne({ "receiver": receiver, "sender": sender }).exec()
+        const isConversationSender = await Conversation.findOne({ "sender": receiver, "receiver": sender }).exec()
 
         if (isConversationReceiver || isConversationSender) {
                 return res.status(400).json({ message: `User ${sender} already has a conversation with user ${receiver}` })

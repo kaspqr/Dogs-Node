@@ -118,21 +118,21 @@ const updateDog = async (req, res) => {
         if (!validUser) return res.status(400).json({ message: 'User not found' })
 
         // Delete all proposals made for this dog due to it's administrative user being changed
-        const dogProposes = await DogPropose.find({ "dog": id }).lean().exec()
+        const dogProposes = await DogPropose.find({ "dog": id }).exec()
         if (dogProposes) {
             for (const proposal of dogProposes) {
                 await DogPropose.findByIdAndDelete(proposal)
             }
         }
 
-        const fatherProposes = await FatherPropose.find({ "father": id }).lean().exec()
+        const fatherProposes = await FatherPropose.find({ "father": id }).exec()
         if (fatherProposes) {
             for (const proposal of fatherProposes) {
                 await FatherPropose.findByIdAndDelete(proposal)
             }
         }
 
-        const puppyProposes = await PuppyPropose.find({ "puppy": id }).lean().exec()
+        const puppyProposes = await PuppyPropose.find({ "puppy": id }).exec()
         if (puppyProposes) {
             for (const proposal of puppyProposes) {
                 await PuppyPropose.findByIdAndDelete(proposal)
@@ -181,7 +181,7 @@ const updateDog = async (req, res) => {
             dog.litter = null
         } else {
             // Delete all puppy proposals as it will now have a litter
-            const proposals = await PuppyPropose.find({ "puppy": dog }).lean().exec()
+            const proposals = await PuppyPropose.find({ "puppy": dog }).exec()
             if (proposals) {
                 for (const proposal of proposals) {
                     await PuppyPropose.findByIdAndDelete(proposal)
@@ -190,7 +190,7 @@ const updateDog = async (req, res) => {
         
             // If the dog was previously also proposed as the father of the litter it is now being added to
             // Delete said proposal
-            const fatherProposals = await FatherPropose.find({ "father": dog, "litter": litter }).lean().exec()
+            const fatherProposals = await FatherPropose.find({ "father": dog, "litter": litter }).exec()
             if (fatherProposals) {
                 for (const proposal of fatherProposals) {
                     await FatherPropose.findByIdAndDelete(proposal)
@@ -263,16 +263,16 @@ const deleteDog = async (req, res) => {
     }
 
     // Check if the dog has a litter in the database
-    const litter = await Litter.find({ "mother": id }).lean().exec()
+    const litter = await Litter.find({ "mother": id }).exec()
 
     if (litter) {
         // Get all the dogs that belong to said litter, as the litter will be deleted
         // Meaning of the litter's dogs' litter has to be updated to null
-        const dogs = await Dog.find({ "litter": litter }).lean().exec()
+        const dogs = await Dog.find({ "litter": litter }).exec()
 
         for (const dog of dogs) {
             dog.litter = null
-            const updatedDog = await Dog.findByIdAndUpdate(dog._id, dog, { new: true }).lean().exec()
+            const updatedDog = await Dog.findByIdAndUpdate(dog._id, dog, { new: true }).exec()
             console.log(`removed litter from dog ${updatedDog._id}`)
         }
 
@@ -281,21 +281,21 @@ const deleteDog = async (req, res) => {
     }
 
     // Delete all of the dog's proposals
-    const dogProposes = await DogPropose.find({ "dog": id }).lean().exec()
+    const dogProposes = await DogPropose.find({ "dog": id }).exec()
     if (dogProposes) {
         for (const proposal of dogProposes) {
             await DogPropose.findByIdAndDelete(proposal)
         }
     }
 
-    const fatherProposes = await FatherPropose.find({ "father": id }).lean().exec()
+    const fatherProposes = await FatherPropose.find({ "father": id }).exec()
     if (fatherProposes) {
         for (const proposal of fatherProposes) {
             await FatherPropose.findByIdAndDelete(proposal)
         }
     }
 
-    const puppyProposes = await PuppyPropose.find({ "puppy": id }).lean().exec()
+    const puppyProposes = await PuppyPropose.find({ "puppy": id }).exec()
     if (puppyProposes) {
         for (const proposal of puppyProposes) {
             await PuppyPropose.findByIdAndDelete(proposal)

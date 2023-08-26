@@ -18,11 +18,11 @@ const getAllResetTokens = async (req, res) => {
 const createNewResetToken = async (req, res) => {
     const { email } = req.body
 
-    const user = await User.findOne({ email: email }).lean().exec()
+    const user = await User.findOne({ email: email }).exec()
 
     if (!user) return res.status(400).send({ message: "User with specified email does not exist" })
 
-    const invalidRequest = await ResetToken.findOne({ user: user?._id }).lean().exec()
+    const invalidRequest = await ResetToken.findOne({ user: user?._id }).exec()
 
     if (invalidRequest) res.status(400).send({ message: "A request has already been sent to the email" })
 

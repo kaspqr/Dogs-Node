@@ -43,6 +43,11 @@ const advertisementSchema = new mongoose.Schema({
     },
     image: {
         type: String
+    },
+    created: {
+        type: Date,
+        default: Date.now(),
+        expires: 2592000 // 30 days
     }
 })
 

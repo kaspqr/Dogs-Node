@@ -76,7 +76,7 @@ const updateLitter = async (req, res) => {
         }
 
         // Deleting all father proposes made to the litter, since a father has now been chosen
-        const fatherProposes = await FatherPropose.find({ "litter": litter }).lean().exec()
+        const fatherProposes = await FatherPropose.find({ "litter": litter }).exec()
 
         if (fatherProposes) {
             for (const fatherPropose of fatherProposes) {
@@ -86,7 +86,7 @@ const updateLitter = async (req, res) => {
 
         // If the father was also proposed as a puppy, the proposal must be deleted
         // As the dog cannot be both the father and the puppy of said litter
-        const puppyProposes = await PuppyPropose.find({ "litter": litter, "puppy": father }).lean().exec()
+        const puppyProposes = await PuppyPropose.find({ "litter": litter, "puppy": father }).exec()
 
         if (puppyProposes) {
             for (const puppyPropose of puppyProposes) {
@@ -123,16 +123,16 @@ const deleteLitter = async (req, res) => {
     }
 
     // Find all the dogs belonging to the litter and update their litter to null
-    const dogs = await Dog.find({ "litter": id }).lean().exec()
+    const dogs = await Dog.find({ "litter": id }).exec()
 
     for (const dog of dogs) {
         dog.litter = null
-        const updatedDog = await Dog.findByIdAndUpdate(dog._id, dog, { new: true }).lean().exec()
+        const updatedDog = await Dog.findByIdAndUpdate(dog._id, dog, { new: true }).exec()
         console.log(`removed litter from dog ${updatedDog._id}`)
     }
 
     // Delete all proposals made to this litter
-    const fatherProposes = await FatherPropose.find({ "litter": litter }).lean().exec()
+    const fatherProposes = await FatherPropose.find({ "litter": litter }).exec()
 
     if (fatherProposes) {
         for (const fatherPropose of fatherProposes) {
@@ -140,7 +140,7 @@ const deleteLitter = async (req, res) => {
         }
     }
 
-    const puppyProposes = await PuppyPropose.find({ "litter": litter }).lean().exec()
+    const puppyProposes = await PuppyPropose.find({ "litter": litter }).exec()
 
     if (puppyProposes) {
         for (const puppyPropose of puppyProposes) {
