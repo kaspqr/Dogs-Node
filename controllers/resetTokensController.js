@@ -84,8 +84,9 @@ const createNewResetToken = async (req, res) => {
                     <a class="button" href="${url}">
                         <b class="button-text">Reset Password</b>
                     </a>
+                    <p>This link is valid for 1 hour</p>
                     <p>If the reset button does not work, please go to the link below</p>
-                    <p>If you didn't request for your password to be reset, you can safely ignore this email.</p>
+                    <p>If you didn't request for your password to be reset, you can safely ignore this email</p>
                 </div>
             </div>
         </body>

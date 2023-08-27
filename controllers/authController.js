@@ -88,8 +88,9 @@ const login = async (req, res) => {
                             <a class="button" href="${url}">
                                 <b class="button-text">Verify Email</b>
                             </a>
+                            <p>This link is valid for 1 hour</p>
                             <p>If the verification button does not work, please go to the link below</p>
-                            <p>If you didn't sign up for this, you can safely ignore this email.</p>
+                            <p>If you didn't sign up for this, you can safely ignore this email</p>
                         </div>
                     </div>
                 </body>
