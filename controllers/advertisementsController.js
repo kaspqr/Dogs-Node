@@ -14,7 +14,7 @@ const getAllAdvertisements = async (req, res) => {
 // @route POST /advertisements
 // @access Private
 const createNewAdvertisement = async (req, res) => {
-    const { premium, poster, title, type, price, info, currency, country, region, image } = req.body
+    const { premium, poster, title, type, price, info, currency, country, region, image, breed } = req.body
 
     // Confirm data
     if (!poster || !title || !type || !country) {
@@ -51,6 +51,10 @@ const createNewAdvertisement = async (req, res) => {
 
     if (region?.length) {
         advertisementObject.region = region
+    }
+
+    if (breed?.length) {
+        advertisementObject.breed = breed
     }
 
     // Create and store new advertisement

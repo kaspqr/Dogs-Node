@@ -44,6 +44,9 @@ const advertisementSchema = new mongoose.Schema({
     image: {
         type: String
     },
+    breed: {
+        type: String
+    },
     created: {
         type: Date,
         default: Date.now(),
