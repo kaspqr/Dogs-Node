@@ -7,9 +7,6 @@ const User = require('../models/User')
 // @access Private
 const getAllMessages = async (req, res) => {
     const messages = await Message.find().lean()
-    if (!messages?.length) {
-        return res.status(400).json({ message: 'No messages found' })
-    }
     res.json(messages)
 }
 

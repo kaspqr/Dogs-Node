@@ -6,9 +6,6 @@ const User = require('../models/User')
 // @access Private
 const getAllConversations = async (req, res) => {
     const conversations = await Conversation.find().lean()
-    if (!conversations?.length) {
-        return res.status(400).json({ message: 'No conversations found' })
-    }
     res.json(conversations)
 }
 
