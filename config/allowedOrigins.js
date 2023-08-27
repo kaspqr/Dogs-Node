@@ -1,5 +1,5 @@
 const allowedOrigins = [
-    'http://localhost:3000',
+    'https://pawretriever.onrender.com',
     'https://www.pawretriever.com',
     'https://pawretriever.com',
 ]
