@@ -6,7 +6,7 @@ const mg = mailgun.client({ username: 'api', key: process.env.MAIL_API_KEY })
 const sendEmail = (email, subject, html) => {
 
     mg.messages.create(process.env.MAIL_API_DOMAIN, {
-        from: `Paw Retriever <noreply@${MAIL_API_DOMAIN}>`,
+        from: `Paw Retriever <noreply@${process.env.MAIL_API_DOMAIN}>`,
         to: [`${email}`],
         subject: `${subject}`,
         html: `${html}`,
