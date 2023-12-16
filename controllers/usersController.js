@@ -27,7 +27,7 @@ const verifyEmail = async (req, res) => {
         const user = await User.findById(userId)
         if (!user) return res.status(400).send({ message: "Invalid Link" })
 
-        const token = await Token.findOne({ 
+        const token = await Token.findOne({
             user: userId,
             token: tokenId
         })
@@ -59,7 +59,7 @@ const verifyNewEmail = async (req, res) => {
         const user = await User.findById(userId)
         if (!user) return res.status(400).send({ message: "Invalid Link" })
 
-        const token = await EmailToken.findOne({ 
+        const token = await EmailToken.findOne({
             user: userId,
             emailToken: tokenId
         })
@@ -258,7 +258,7 @@ const resetPassword = async (req, res) => {
 // @route PATCH /users
 // @access Private
 const updateUser = async (req, res) => {
-    const { id, active, password, name, email, country, region, bio, picture, currentPassword, roles } = req.body
+    const { id, active, password, name, email, country, region, bio, picture, currentPassword, roles, image } = req.body
 
     // Confirm data
     if (!id) {
@@ -404,6 +404,26 @@ const updateUser = async (req, res) => {
 
     if (roles) {
         user.roles = roles
+    }
+
+    if (image?.length) {
+        if (image === 'none ') {
+            user.image = null
+            await cloudinary.uploader.destroy(`userimages/userimages_${id}`)
+        } else {
+            try {
+                const uploadedResponse = await cloudinary.uploader.upload(image, {
+                    upload_preset: 'berao33q',
+                    folder: 'userimages',
+                    public_id: `userimages_${id}`,
+                    overwrite: true
+                })
+
+                user.image = uploadedResponse?.secure_url
+            } catch (error) {
+                console.log(error)
+            }
+        }
     }
 
     const updatedUser = await user.save()

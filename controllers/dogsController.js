@@ -187,7 +187,7 @@ const updateDog = async (req, res) => {
                     await PuppyPropose.findByIdAndDelete(proposal)
                 }
             }
-        
+
             // If the dog was previously also proposed as the father of the litter it is now being added to
             // Delete said proposal
             const fatherProposals = await FatherPropose.find({ "father": dog, "litter": litter }).exec()
@@ -196,7 +196,7 @@ const updateDog = async (req, res) => {
                     await FatherPropose.findByIdAndDelete(proposal)
                 }
             }
-            
+
             dog.litter = litter
         }
     }
@@ -232,8 +232,20 @@ const updateDog = async (req, res) => {
     if (image?.length) {
         if (image === 'none ') {
             dog.image = null
+            await cloudinary.uploader.destroy(`dogimages/dogimages_${id}`)
         } else {
-            dog.image = image
+            try {
+                const uploadedResponse = await cloudinary.uploader.upload(image, {
+                    upload_preset: 'berao33q',
+                    folder: 'dogimages',
+                    public_id: `dogimages_${dog?.id}`,
+                    overwrite: true
+                })
+
+                dog.image = uploadedResponse?.secure_url
+            } catch (error) {
+                console.log(error)
+            }
         }
     }
 

@@ -145,8 +145,20 @@ const updateAdvertisement = async (req, res) => {
     if (image?.length) {
         if (image === 'none ') {
             advertisement.image = null
+            await cloudinary.uploader.destroy(`advertisementimages/advertisementimages_${id}`)
         } else {
-            advertisement.image = image
+            try {
+                const uploadedResponse = await cloudinary.uploader.upload(image, {
+                    upload_preset: 'berao33q',
+                    folder: 'advertisementimages',
+                    public_id: `advertisementimages_${advertisement?.id}`,
+                    overwrite: true
+                })
+        
+                advertisement.image = uploadedResponse?.secure_url
+            } catch (error) {
+                console.log(error)
+            }
         }
     }
 
@@ -172,7 +184,7 @@ const deleteAdvertisement = async (req, res) => {
     }
 
     if (advertisement?.image) {
-        const result = await cloudinary.uploader.destroy(`advertisementimages/advertisementimages_${id}`)
+        await cloudinary.uploader.destroy(`advertisementimages/advertisementimages_${id}`)
     }
 
     const result = await advertisement.deleteOne()
