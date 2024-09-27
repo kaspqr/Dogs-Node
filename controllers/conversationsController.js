@@ -1,75 +1,80 @@
 const Conversation = require('../models/Conversation')
+const Message = require('../models/Message')
 const User = require('../models/User')
 
-// @desc Get all conversations
-// @route GET /conversations
-// @access Private
-const getAllConversations = async (req, res) => {
-    const conversations = await Conversation.find().lean()
-    res.json(conversations)
+const getConversations = async (req, res) => {
+    const { id } = req.params
+    const { tokenUserId } = req.body
+
+    if (!id) return res.status(400).json({ message: 'User ID is required' })
+    if (id !== tokenUserId) return res.status(401).json({ message: 'Unauthorized' })
+
+    const conversations = await Conversation.find({ $or: [{ receiver: id }, { sender: id }] }).lean()
+
+    const conversationsWithLastMessages = await Promise.all(
+        conversations.map(async (conversation) => {
+            const lastMessage = await Message.findOne({ conversation: conversation._id }).sort({ time: -1 }).lean()
+
+            return { ...conversation, lastMessage };
+        })
+    );
+
+    const sortedConversations = conversationsWithLastMessages.sort((a, b) => {
+        if (!a.lastMessage) return 1;
+        if (!b.lastMessage) return -1;
+        return new Date(b.lastMessage.time) - new Date(a.lastMessage.time);
+    });
+
+    res.json(sortedConversations)
 }
 
-// @desc Create new conversation
-// @route POST /conversations
-// @access Private
-const createNewConversation = async (req, res) => {
-    const { sender, receiver } = req.body
+const getConversationById = async (req, res) => {
+    const { id } = req.params
+    const { tokenUserId } = req.body
 
-    // Confirm data
-    if (!sender || !receiver) {
+    if (!id || !tokenUserId) return res.status(400).json({ message: 'ID and token ID is required' })
+    
+    const conversation = await Conversation.findById(id).lean()
+    if (!conversation) return res.status(400).json({ message: 'Conversation does not exist' })
+    
+    if (conversation.receiver.toString() !== tokenUserId && conversation.sender.toString() !== tokenUserId) {
+        return res.status(400).json({ message: 'Unauthorized' })
+    }
+
+    res.json(conversation)
+}
+
+const createNewConversation = async (req, res) => {
+    const { tokenUserId, receiver } = req.body
+
+    if (!tokenUserId || !receiver) {
         return res.status(400).json({ message: 'Sender and receiver is required' })
     }
 
-    const conversationSender = await User.findById(sender)
+    const conversationSender = await User.findById(tokenUserId)
     const conversationReceiver = await User.findById(receiver)
 
     if (!conversationSender) {
-        return res.status(400).json({ message: `Sender with user ID ${sender} does not exist` })
+        return res.status(400).json({ message: `Sender with user ID ${tokenUserId} does not exist` })
     }
 
     if (!conversationReceiver) {
         return res.status(400).json({ message: `Receiver with user ID ${receiver} does not exist` })
     }
 
-    const conversationObject = { sender, receiver }
+    const conversationObject = { sender: tokenUserId, receiver }
 
-    // Create and store new conversation
     const conversation = await Conversation.create(conversationObject)
 
-    if (conversation) { //Created
+    if (conversation) {
         res.status(201).json({ newConversationId: conversation.id, message: `Conversation with ID ${conversation.id} created` })
     } else {
         res.status(400).json({ message: 'Invalid conversation data received' })
     }
 }
 
-// @desc No updating for conversations
-
-// @desc Delete conversation
-// @route DELETE /conversations
-// @access Private
-const deleteConversation = async (req, res) => {
-    const { id } = req.body
-
-    if (!id) {
-        return res.status(400).json({ message: 'Conversation ID Required' })
-    }
-
-    const conversation = await Conversation.findById(id).exec()
-
-    if (!conversation) {
-        return res.status(400).json({ message: 'Conversation not found' })
-    }
-
-    const result = await conversation.deleteOne()
-
-    const reply = `Conversation with ID ${result._id} deleted`
-
-    res.json(reply)
-}
-
 module.exports = {
-    getAllConversations,
+    getConversations,
+    getConversationById,
     createNewConversation,
-    deleteConversation
 }

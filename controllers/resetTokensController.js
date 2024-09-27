@@ -4,29 +4,27 @@ const User = require('../models/User')
 const sendEmail = require('../utils/sendEmail')
 const crypto = require('crypto')
 
-// @desc Get all reset tokens
-// @route GET /resettokens
-// @access Private
-const getAllResetTokens = async (req, res) => {
-    const resetTokens = await ResetToken.find().lean()
-    res.json(resetTokens)
+const getResetToken = async (req, res) => {
+    const { resetToken, user } = req.params
+
+    if (!resetToken || !user) return res.status(400).send({ message: "resetToken and user ID are required" })
+
+    const userResetToken = await ResetToken.findOne({ resetToken, user }).lean()
+    if (!userResetToken) return res.status(400).json({ message: 'Reset token not found' })
+        
+    res.json(userResetToken)
 }
 
-// @desc Create new reset token
-// @route POST /resettokens
-// @access Private
 const createNewResetToken = async (req, res) => {
     const { email } = req.body
 
     const user = await User.findOne({ email: email }).exec()
-
     if (!user) return res.status(400).send({ message: "User with specified email does not exist" })
 
     const invalidRequest = await ResetToken.findOne({ user: user?._id }).exec()
-
     if (invalidRequest) res.status(400).send({ message: "A request has already been sent to the email" })
 
-    const resetToken = await ResetToken.create({ // For email verification
+    const resetToken = await ResetToken.create({
         user: user._id,
         resetToken: crypto.randomBytes(32).toString('hex')
     })
@@ -103,6 +101,6 @@ const createNewResetToken = async (req, res) => {
 }
 
 module.exports = {
-    getAllResetTokens,
+    getResetToken,
     createNewResetToken
 }

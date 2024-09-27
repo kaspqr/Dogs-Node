@@ -1,13 +1,16 @@
 const Token = require('../models/Token')
 
-// @desc Get all tokens
-// @route GET /tokens
-// @access Private
-const getAllTokens = async (req, res) => {
-    const tokens = await Token.find().lean()
-    res.json(tokens)
+const getUserToken = async (req, res) => {
+    const { token, user } = req.params
+
+    if (!token || !user) return res.status(400).send({ message: "Token and user ID are required" })
+
+    const userToken = await Token.findOne({ token, user }).lean()
+    if (!userToken) return res.status(400).send({ message: "Token not found" })
+
+    res.json(userToken)
 }
 
 module.exports = {
-    getAllTokens
+    getUserToken
 }

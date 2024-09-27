@@ -1,13 +1,16 @@
 const EmailToken = require('../models/EmailToken')
 
-// @desc Get all email tokens
-// @route GET /emailtokens
-// @access Private
-const getAllEmailTokens = async (req, res) => {
-    const emailTokens = await EmailToken.find().lean()
-    res.json(emailTokens)
+const getEmailToken = async (req, res) => {
+    const { emailToken, user } = req.params
+
+    if (!emailToken || !user) return res.status(400).json({ message: 'Email token and user ID are required' })
+
+    const userEmailToken = await EmailToken.findOne({ emailToken, user }).lean()
+    if (!userEmailToken) return res.status(400).json({ message: 'Email token not found' })
+        
+    res.json(userEmailToken)
 }
 
 module.exports = {
-    getAllEmailTokens
+    getEmailToken
 }

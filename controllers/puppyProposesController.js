@@ -2,72 +2,77 @@ const PuppyPropose = require('../models/PuppyPropose')
 const Dog = require('../models/Dog')
 const Litter = require('../models/Litter')
 
-// @desc Get all puppy proposals
-// @route GET /puppyproposes
-// @access Private
-const getAllPuppyProposes = async (req, res) => {
-    const puppyProposes = await PuppyPropose.find().lean()
-    res.json(puppyProposes)
+const getPuppyProposesByLitterId = async (req, res) => {
+    const { id } = req.params
+
+    if (!id) return res.status(400).json({ message: `ID is required` })
+
+    const litter = await Litter.findOne({ _id: id })
+    if (!litter) return res.status(400).json({ message: `Litter does not exist` })
+
+    const proposals = await PuppyPropose.find({ litter: id })
+
+    res.json(proposals)
 }
 
-// @desc Create new puppy proposal
-// @route POST /puppyproposes
-// @access Private
+const getUserPuppyProposes = async (req, res) => {
+    const { id } = req.params
+
+    const userDogs = await Dog.find({ user: id }).lean()
+
+    const puppyProposalsMadeByUser = (await Promise.all(
+        userDogs.map(async (dog) => {
+            const hasPuppyProposal = await PuppyPropose.find({ puppy: dog._id }).lean();
+            return { dog, hasPuppyProposal: hasPuppyProposal.length > 0 };
+        })
+    )).filter(result => result.hasPuppyProposal).map(result => result.dog);
+
+    res.json(puppyProposalsMadeByUser)
+}
+
 const createNewPuppyPropose = async (req, res) => {
-    const { puppy, litter } = req.body
+    const { puppy, litter, tokenUserId } = req.body
 
-    // Confirm data
-    if (!puppy || !litter) {
-        return res.status(400).json({ message: 'Puppy and Litter are required' })
-    }
+    if (!puppy || !litter) return res.status(400).json({ message: 'Puppy and Litter are required' })
 
-    const proposedPuppy = await Dog.findById(puppy)
-    const proposedLitter = await Litter.findById(litter)
+    const proposedPuppy = await Dog.findById(puppy).lean()
+    const proposedLitter = await Litter.findById(litter).lean()
 
-    if (!proposedPuppy) {
-        return res.status(400).json({ message: `Dog with ID ${proposedPuppy} does not exist` })
-    }
+    if (!proposedPuppy) return res.status(400).json({ message: `Dog with ID ${puppy} does not exist` })
+    if (!proposedLitter) return res.status(400).json({ message: `Litter with ID ${litter} does not exist` })
 
-    if (!proposedLitter) {
-        return res.status(400).json({ message: `Litter with ID ${proposedLitter} does not exist` })
-    }
+    if (proposedPuppy.user.toString() !== tokenUserId) return res.status(401).json({ message: 'Unauthorized' })
 
-    // See if a proposal has already been made for this dog
-    // If it has, delete it, as you shouldn't have proposals for the same puppy
-    // For more than one litter
-    const proposal = await PuppyPropose.findOne({ "puppy": puppy }).exec()
+    const motherDog = await Dog.findOne({ _id: proposedLitter.mother }).lean()
+    if (!motherDog) return res.status(400).json({ message: `Litter does not have a mother` })
 
-    if (proposal) await PuppyPropose.findByIdAndDelete(proposal)
+    if (motherDog.user.toString() === tokenUserId) return res.status(400).json({ message: `User already owns the litter` })
+
+    await PuppyPropose.findOneAndDelete({ puppy })
 
     const puppyProposeObject = { puppy, litter }
 
-    // Create and store new puppy proposal
     const puppyPropose = await PuppyPropose.create(puppyProposeObject)
 
-    if (puppyPropose) { //Created
+    if (puppyPropose) {
         res.status(201).json({ message: `Puppy proposal with ID ${puppyPropose?.id} created` })
     } else {
         res.status(400).json({ message: 'Invalid puppy proposal data received' })
     }
 }
 
-// @desc No updating for puppy proposals
-
-// @desc Delete puppy proposal
-// @route DELETE /puppyproposes
-// @access Private
 const deletePuppyPropose = async (req, res) => {
-    const { id } = req.body
+    const { id, tokenUserId } = req.body
 
-    if (!id) {
-        return res.status(400).json({ message: 'Puppy Proposal ID Required' })
-    }
+    if (!id) return res.status(400).json({ message: 'Puppy Proposal ID Required' })
 
     const puppyPropose = await PuppyPropose.findById(id).exec()
+    if (!puppyPropose) return res.status(400).json({ message: 'Puppy propose not found' })
 
-    if (!puppyPropose) {
-        return res.status(400).json({ message: 'Puppy propose not found' })
-    }
+    const puppyDog = await Dog.find({ _id: puppyPropose.puppy })
+    if (!puppyDog) return res.status(400).json({ message: 'Dog not found' })
+
+    if (puppyDog.user.toString() !== tokenUserId) return res.status(401).json({ message: 'Unauthorized' })
 
     const result = await puppyPropose.deleteOne()
 
@@ -77,7 +82,8 @@ const deletePuppyPropose = async (req, res) => {
 }
 
 module.exports = {
-    getAllPuppyProposes,
+    getPuppyProposesByLitterId,
+    getUserPuppyProposes,
     createNewPuppyPropose,
     deletePuppyPropose
 }

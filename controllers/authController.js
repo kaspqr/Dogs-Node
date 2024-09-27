@@ -1,13 +1,10 @@
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const Token = require('../models/Token')
+/* const Token = require('../models/Token')
 const sendEmail = require('../utils/sendEmail')
-const crypto = require('crypto')
+const crypto = require('crypto') */
 
-// @desc Login
-// @route POST /auth
-// @access Public
 const login = async (req, res) => {
     const { username, password } = req.body
 
@@ -27,7 +24,7 @@ const login = async (req, res) => {
 
     if (!match) return res.status(401).json({ message: 'Username and password do not match' })
 
-    if (foundUser.verified === false) {
+    /* if (foundUser.verified === false) {
         let token = await Token.findOne({ user: foundUser._id }).exec()
         if (!token) {
             token = await Token.create({ // For email verification
@@ -104,14 +101,21 @@ const login = async (req, res) => {
             sendEmail(foundUser?.email, 'Verify Email', html)
         }
         return res.status(403).json({ message: 'A verification link has been sent to your email, please click on it.' })
-    }
+    } */
 
     const accessToken = jwt.sign(
         {
             "UserInfo": {
-                "username": foundUser.username,
-                "roles": foundUser.roles,
-                "id": foundUser.id
+                username: foundUser.username,
+                roles: foundUser.roles,
+                id: foundUser.id,
+                active: foundUser.active,
+                name: foundUser.name,
+                email: foundUser.email,
+                image: foundUser.image,
+                bio: foundUser.bio,
+                country: foundUser.country,
+                region: foundUser.region
             }
         },
         process.env.ACCESS_TOKEN_SECRET,
@@ -124,29 +128,22 @@ const login = async (req, res) => {
         { expiresIn: '100d' }
     )
 
-    // Create secure cookie with refresh token
     res.cookie('jwt', refreshToken, {
-        httpOnly: true, // Accessible only by web server
-        secure: true, // https
-        sameSite: 'None', // cross-site cookie
-        maxAge: 100 * 24 * 60 * 60 * 1000 // Cookie expiry, to match refreshToken
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        maxAge: 100 * 24 * 60 * 60 * 1000
     })
 
-    // Send accessToken containing username an roles
     res.json({ accessToken })
 }
 
-
-// @desc Refresh
-// @route GET /auth/refresh
-// @access Public - because access token has expired
 const refresh = (req, res) => {
     const cookies = req.cookies
 
     if (!cookies?.jwt) return res.status(451).json({ message: 'Unauthorized' })
 
     const refreshToken = cookies.jwt
-
 
     jwt.verify(
         refreshToken,
@@ -161,9 +158,16 @@ const refresh = (req, res) => {
             const accessToken = jwt.sign(
                 {
                     "UserInfo": {
-                        "username": foundUser.username,
-                        "roles": foundUser.roles,
-                        "id": foundUser.id
+                        username: foundUser.username,
+                        roles: foundUser.roles,
+                        id: foundUser.id,
+                        active: foundUser.active,
+                        name: foundUser.name,
+                        email: foundUser.email,
+                        image: foundUser.image,
+                        bio: foundUser.bio,
+                        country: foundUser.country,
+                        region: foundUser.region
                     }
                 },
                 process.env.ACCESS_TOKEN_SECRET,
@@ -175,12 +179,9 @@ const refresh = (req, res) => {
     )
 }
 
-// @desc Logout
-// @route POST /auth/logout
-// @access Public - just to clear cookie if exists
 const logout = (req, res) => {
     const cookies = req.cookies
-    if (!cookies?.jwt) return res.sendStatus(204) // No content
+    if (!cookies?.jwt) return res.sendStatus(204)
     res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true })
     res.json({ message: 'Cookie cleared' })
 }

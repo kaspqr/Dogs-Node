@@ -3,7 +3,9 @@ const router = express.Router()
 const resetTokensController = require('../controllers/resetTokensController')
 
 router.route('/')
-    .get(resetTokensController.getAllResetTokens)
     .post(resetTokensController.createNewResetToken)
+
+router.route('/:resetToken/:user')
+    .get(resetTokensController.getResetToken)
 
 module.exports = router

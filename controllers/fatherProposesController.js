@@ -2,27 +2,32 @@ const FatherPropose = require('../models/FatherPropose')
 const Dog = require('../models/Dog')
 const Litter = require('../models/Litter')
 
-// @desc Get all father proposals
-// @route GET /fatherproposes
-// @access Private
-const getAllFatherProposes = async (req, res) => {
-    const fatherProposes = await FatherPropose.find().lean()
-    res.json(fatherProposes)
+const getFatherProposalsByLitterId = async (req, res) => {
+    const { id } = req.params
+
+    if (!id) return res.status(400).json({ message: `ID is required` })
+
+    const proposals = await FatherPropose.find({ litter: id })
+
+    res.json(proposals)
 }
 
-// @desc Create new father proposal
-// @route POST /fatherproposes
-// @access Private
 const createNewFatherPropose = async (req, res) => {
-    const { father, litter } = req.body
+    const { father, litter, tokenUserId } = req.body
 
-    // Confirm data
     if (!father || !litter) {
         return res.status(400).json({ message: 'Father and Litter are required' })
     }
 
     const proposedFather = await Dog.findById(father)
     const proposedLitter = await Litter.findById(litter)
+
+    if (proposedFather.user.toString() !== tokenUserId) return res.status(401).json({ message: 'Unauthorized' })
+
+    const motherDog = await Dog.find({ _id: proposedLitter.mother })
+    if (!motherDog) return res.status(400).json({ message: `Litter does not have a mother` })
+
+    if (motherDog.user === tokenUserId) return res.status(400).json({ message: `User already owns the litter` })
 
     if (!proposedFather) {
         return res.status(400).json({ message: `Dog with ID ${proposedFather} does not exist` })
@@ -32,42 +37,32 @@ const createNewFatherPropose = async (req, res) => {
         return res.status(400).json({ message: `Litter with ID ${proposedLitter} does not exist` })
     }
 
-    // See if a proposal has already been made for this dog
-    // If it has, delete it, as you shouldn't have proposals for the same dog
-    // For more than one litter
-    const proposal = await FatherPropose.findOne({ "father": father }).exec()
-
+    const proposal = await FatherPropose.findOne({ father }).exec()
     if (proposal) await FatherPropose.findByIdAndDelete(proposal)
 
     const fatherProposeObject = { father, litter }
 
-    // Create and store new advertisement report
     const fatherPropose = await FatherPropose.create(fatherProposeObject)
 
-    if (fatherPropose) { //Created
+    if (fatherPropose) {
         res.status(201).json({ message: `Father proposal with ID ${fatherPropose?.id} created` })
     } else {
         res.status(400).json({ message: 'Invalid father proposal data received' })
     }
 }
 
-// @desc No updating for father proposals
-
-// @desc Delete father proposal
-// @route DELETE /fatherproposes
-// @access Private
 const deleteFatherPropose = async (req, res) => {
-    const { id } = req.body
+    const { id, tokenUserId } = req.body
 
-    if (!id) {
-        return res.status(400).json({ message: 'Father Proposal ID Required' })
-    }
+    if (!id) return res.status(400).json({ message: 'Father Proposal ID Required' })
 
     const fatherPropose = await FatherPropose.findById(id).exec()
+    if (!fatherPropose) return res.status(400).json({ message: 'Father propose not found' })
 
-    if (!fatherPropose) {
-        return res.status(400).json({ message: 'Father propose not found' })
-    }
+    const fatherDog = await Dog.find({ _id: fatherPropose.father })
+    if (!fatherDog) return res.status(400).json({ message: 'Dog not found' })
+
+    if (fatherDog.user.toString() !== tokenUserId) return res.status(401).json({ message: 'Unauthorized' })
 
     const result = await fatherPropose.deleteOne()
 
@@ -77,7 +72,7 @@ const deleteFatherPropose = async (req, res) => {
 }
 
 module.exports = {
-    getAllFatherProposes,
+    getFatherProposalsByLitterId,
     createNewFatherPropose,
     deleteFatherPropose
 }

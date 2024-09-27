@@ -2,65 +2,57 @@ const AdvertisementReport = require('../models/AdvertisementReport')
 const User = require('../models/User')
 const Advertisement = require('../models/Advertisement')
 
-// @desc Get all advertisement reports
-// @route GET /advertisementreports
-// @access Private
 const getAllAdvertisementReports = async (req, res) => {
+    const { tokenRoles } = req.body
+
+    if (!tokenRoles.includes("Admin") && !tokenRoles.includes("SuperAdmin")) {
+        return res.status(401).json({ message: 'Unauthorized' })
+    }
+
     const advertisementReports = await AdvertisementReport.find().lean()
     res.json(advertisementReports)
 }
 
-// @desc Create new advertisement report
-// @route POST /advertisementreports
-// @access Private
 const createNewAdvertisementReport = async (req, res) => {
-    const { advertisement, reporter, text } = req.body
+    const { advertisement, tokenUserId, text } = req.body
 
-    // Confirm data
-    if (!advertisement || !reporter || !text?.length) {
+    if (!advertisement || !tokenUserId || !text?.length) {
         return res.status(400).json({ message: 'Advertisement, reporter and text is required' })
     }
 
     const reportedAdvertisement = await Advertisement.findById(advertisement)
-    const advertisementReporter = await User.findById(reporter)
+    const advertisementReporter = await User.findById(tokenUserId)
 
     if (!reportedAdvertisement) {
         return res.status(400).json({ message: `Advertisement with ID ${advertisement} does not exist` })
     }
 
     if (!advertisementReporter) {
-        return res.status(400).json({ message: `Reporter with user ID ${reporter} does not exist` })
+        return res.status(400).json({ message: `Reporter with user ID ${tokenUserId} does not exist` })
     }
 
-    const advertisementReportObject = { advertisement, reporter, text }
+    const advertisementReportObject = { advertisement, reporter: tokenUserId, text }
 
-    // Create and store new advertisement report
     const advertisementReport = await AdvertisementReport.create(advertisementReportObject)
 
-    if (advertisementReport) { //Created
-        res.status(201).json({ message: `Advertisement report with ID ${advertisementReport?.id} created by user ${reporter}` })
+    if (advertisementReport) {
+        res.status(201).json({ message: `Advertisement report with ID ${advertisementReport?.id} created by user ${tokenUserId}` })
     } else {
         res.status(400).json({ message: 'Invalid advertisement report data received' })
     }
 }
 
-// @desc No updating for advertisement reports
-
-// @desc Delete advertisement report
-// @route DELETE /advertisementreports
-// @access Private
 const deleteAdvertisementReport = async (req, res) => {
-    const { id } = req.body
+    const { id, tokenRoles } = req.body
 
-    if (!id) {
-        return res.status(400).json({ message: 'Advertisement report ID Required' })
+    if (!id) return res.status(400).json({ message: 'Advertisement report ID Required' })
+
+    if (!tokenRoles.includes("Admin") && !tokenRoles.includes("SuperAdmin")) {
+        return res.status(401).json({ message: 'Unauthorized' })
     }
 
     const advertisementReport = await AdvertisementReport.findById(id).exec()
-
-    if (!advertisementReport) {
-        return res.status(400).json({ message: 'Advertisement report not found' })
-    }
+    if (!advertisementReport) return res.status(400).json({ message: 'Advertisement report not found' })
 
     const result = await advertisementReport.deleteOne()
 

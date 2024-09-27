@@ -6,6 +6,11 @@ const messageReportSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    sender: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     message: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Message',

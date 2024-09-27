@@ -41,9 +41,9 @@ app.use('/dogproposes', require('./routes/dogProposeRoutes'))
 app.use('/dogimages', require('./routes/dogImageRoutes'))
 app.use('/advertisementimages', require('./routes/advertisementImageRoutes'))
 app.use('/userimages', require('./routes/userImageRoutes'))
-app.use('/tokens', require('./routes/tokenRoutes'))
+/* app.use('/tokens', require('./routes/tokenRoutes'))
 app.use('/resettokens', require('./routes/resetTokenRoutes'))
-app.use('/emailtokens', require('./routes/emailTokenRoutes'))
+app.use('/emailtokens', require('./routes/emailTokenRoutes')) */
 
 app.all('*', (req, res) => {
     res.status(404)

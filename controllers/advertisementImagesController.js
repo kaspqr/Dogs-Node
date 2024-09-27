@@ -2,11 +2,17 @@ const { cloudinary } = require('../utils/cloudinary')
 const Advertisement = require('../models/Advertisement')
 
 const uploadAdvertisementImage = async (req, res) => {
+    const { data, advertisement_id, tokenUserId } = req.body
+
     try {
-        const fileString = req.body.data
-        const id = req.body.advertisement_id
+        const fileString = data
+        const id = advertisement_id
 
         const advertisement = await Advertisement.findById(id).exec()
+
+        if (!advertisement) return res.status(400).json({ message: 'Advertisement does not exist' })
+        
+        if (advertisement.poster.toString() !== tokenUserId) return res.status(401).json({ message: 'Unauthorized' })
 
         const uploadedResponse = await cloudinary.uploader.upload(fileString, {
             upload_preset: 'berao33q',
@@ -14,7 +20,6 @@ const uploadAdvertisementImage = async (req, res) => {
             public_id: `advertisementimages_${id}`,
             overwrite: true
         })
-        console.log(uploadedResponse.secure_url)
 
         if (advertisement) advertisement.image = uploadedResponse?.secure_url
 

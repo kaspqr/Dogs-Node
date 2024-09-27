@@ -11,8 +11,8 @@ const sendEmail = (email, subject, html) => {
         subject: `${subject}`,
         html: `${html}`,
     })
-    .then(msg => console.log(msg)) // Logs response data
-    .catch(err => console.log(err)) // Logs any error
+    .then(msg => console.log(msg))
+    .catch(err => console.log(err))
 }
 
 module.exports = sendEmail

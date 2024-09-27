@@ -1,10 +1,15 @@
 const express = require('express')
 const router = express.Router()
 const messagesController = require('../controllers/messagesController')
+const verifyJWT = require('../middleware/verifyJWT')
 
 router.route('/')
-    .get(messagesController.getAllMessages)
-    .post(messagesController.createNewMessage)
-    .delete(messagesController.deleteMessage)
+    .post(verifyJWT, messagesController.createNewMessage)
+
+router.route('/conversation/:id')
+    .get(verifyJWT, messagesController.getMessages)
+
+router.route('/:id')
+    .get(verifyJWT, messagesController.getMessageById)
 
 module.exports = router

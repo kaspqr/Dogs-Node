@@ -2,65 +2,57 @@ const DogReport = require('../models/DogReport')
 const User = require('../models/User')
 const Dog = require('../models/Dog')
 
-// @desc Get all dog reports
-// @route GET /dogreports
-// @access Private
 const getAllDogReports = async (req, res) => {
+    const { tokenRoles } = req.body
+
+    if (!tokenRoles.includes("Admin") && !tokenRoles.includes("SuperAdmin")) {
+        return res.status(401).json({ message: 'Unauthorized' })
+    }
+
     const dogReports = await DogReport.find().lean()
     res.json(dogReports)
 }
 
-// @desc Create new dog report
-// @route POST /dogreports
-// @access Private
 const createNewDogReport = async (req, res) => {
-    const { dog, reporter, text } = req.body
+    const { dog, tokenUserId, text } = req.body
 
-    // Confirm data
-    if (!dog || !reporter || !text?.length) {
+    if (!dog || !tokenUserId || !text?.length) {
         return res.status(400).json({ message: 'Dog, reporter and text is required' })
     }
 
     const reportedDog = await Dog.findById(dog)
-    const dogReporter = await User.findById(reporter)
+    const dogReporter = await User.findById(tokenUserId)
 
     if (!reportedDog) {
         return res.status(400).json({ message: `Dog with ID ${dog} does not exist` })
     }
 
     if (!dogReporter) {
-        return res.status(400).json({ message: `Reporter with user ID ${reporter} does not exist` })
+        return res.status(400).json({ message: `Reporter with user ID ${tokenUserId} does not exist` })
     }
 
-    const dogReportObject = { dog, reporter, text }
+    const dogReportObject = { dog, reporter: tokenUserId, text }
 
-    // Create and store new dog report
     const dogReport = await DogReport.create(dogReportObject)
 
-    if (dogReport) { //Created
-        res.status(201).json({ message: `Dog report with ID ${dogReport.id} created by user ${reporter}` })
+    if (dogReport) {
+        res.status(201).json({ message: `Dog report with ID ${dogReport.id} created by user ${tokenUserId}` })
     } else {
         res.status(400).json({ message: 'Invalid dog report data received' })
     }
 }
 
-// @desc No updating for dog reports
-
-// @desc Delete dog report
-// @route DELETE /dogreports
-// @access Private
 const deleteDogReport = async (req, res) => {
-    const { id } = req.body
+    const { id, tokenRoles } = req.body
 
-    if (!id) {
-        return res.status(400).json({ message: 'Dog report ID Required' })
+    if (!id) return res.status(400).json({ message: 'Dog report ID Required' })
+
+    if (!tokenRoles.includes("Admin") && !tokenRoles.includes("SuperAdmin")) {
+        return res.status(401).json({ message: 'Unauthorized' })
     }
 
     const dogReport = await DogReport.findById(id).exec()
-
-    if (!dogReport) {
-        return res.status(400).json({ message: 'Dog report not found' })
-    }
+    if (!dogReport) return res.status(400).json({ message: 'Dog report not found' })
 
     const result = await dogReport.deleteOne()
 

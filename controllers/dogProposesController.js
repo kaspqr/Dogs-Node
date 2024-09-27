@@ -2,24 +2,49 @@ const DogPropose = require('../models/DogPropose')
 const Dog = require('../models/Dog')
 const User = require('../models/User')
 
-// @desc Get all dog proposals
-// @route GET /dogproposes
-// @access Private
-const getAllDogProposes = async (req, res) => {
-    const dogProposes = await DogPropose.find().lean()
+const getProposedDogs = async (req, res) => {
+    const { user } = req.params
+    const { tokenUserId } = req.body
+
+    if (!user || !tokenUserId) return res.status(400).json({ message: 'User ID and token ID are required' })
+
+    if (user !== tokenUserId) return res.status(401).json({ message: 'Unauthorized' })
+
+    const foundUser = User.find({ _id: user }).lean()
+    if (!foundUser) return res.status(400).json({ message: 'User not found' })
+
+    const dogProposes = await DogPropose.find({ user }).lean()
+
+    const proposedDogIds = dogProposes.map((proposal) => proposal.dog)
+
+    const proposedDogs = await Promise.all(
+        proposedDogIds.map(async (id) => await Dog.findOne({ _id: id }).lean())
+    );
+
+    res.json(proposedDogs)
+}
+
+const getUserDogProposals = async (req, res) => {
+    const { user } = req.params
+    const { tokenUserId } = req.body
+
+    if (!user || !tokenUserId) return res.status(400).json({ message: 'User ID and token ID are required' })
+
+    if (user !== tokenUserId) return res.status(401).json({ message: 'Unauthorized' })
+
+    const foundUser = User.find({ _id: user }).lean()
+    if (!foundUser) return res.status(400).json({ message: 'User not found' })
+
+    const dogProposes = await DogPropose.find({ user }).lean()
+
     res.json(dogProposes)
 }
 
-// @desc Create new dog proposal
-// @route POST /dogproposes
-// @access Private
 const createNewDogPropose = async (req, res) => {
-    const { dog, user } = req.body
+    const { dog, user, tokenUserId } = req.body
 
-    // Confirm data
-    if (!dog || !user) {
-        return res.status(400).json({ message: 'Dog and User are required' })
-    }
+    if (!dog || !user) return res.status(400).json({ message: 'Dog and User are required' })
+    if (user === tokenUserId) return res.status(400).json({ message: 'Cannot propose a dog to yourself' })
 
     const proposedDog = await Dog.findById(dog)
     const proposedUser = await User.findById(user)
@@ -32,44 +57,35 @@ const createNewDogPropose = async (req, res) => {
         return res.status(400).json({ message: `User with ID ${proposedUser} does not exist` })
     }
 
-    // See if a proposal has already been made for this dog
-    // If it has, delete it, as you shouldn't have proposals for the same dog
-    // To more than one user
-    const proposal = await DogPropose.findOne({ "dog": dog }).exec()
+    if (proposedDog.user.toString() !== tokenUserId) return res.status(401).json({ message: `Unauthorized` })
 
-    if (proposal) await DogPropose.findByIdAndDelete(proposal)
+    await DogPropose.findOneAndDelete({ dog }).exec()
 
     const dogProposeObject = { dog, user }
 
-    // Create and store new advertisement report
     const dogPropose = await DogPropose.create(dogProposeObject)
 
-    if (dogPropose) { //Created
+    if (dogPropose) {
         res.status(201).json({ message: `Dog proposal with ID ${dogPropose?.id} created` })
     } else {
         res.status(400).json({ message: 'Invalid dog proposal data received' })
     }
 }
 
-// @desc No updating for dog proposals
-
-// @desc Delete dog proposal
-// @route DELETE /dogproposes
-// @access Private
 const deleteDogPropose = async (req, res) => {
-    const { id } = req.body
+    const { id, tokenUserId } = req.body
 
-    if (!id) {
-        return res.status(400).json({ message: 'Dog Proposal ID Required' })
-    }
+    if (!id) return res.status(400).json({ message: 'Dog Proposal ID Required' })
 
-    const dogPropose = await DogPropose.findById(id).exec()
+    const dogProposal = await DogPropose.findById(id).exec()
+    if (!dogProposal) return res.status(400).json({ message: 'Dog Proposal not found' })
 
-    if (!dogPropose) {
-        return res.status(400).json({ message: 'Dog propose not found' })
-    }
+    const dog = await Dog.find({ _id: dogProposal.dog })
+    if (!dog) return res.status(400).json({ message: 'Dog not found' })
 
-    const result = await dogPropose.deleteOne()
+    if (dog.user.toString() !== tokenUserId) return res.status(401).json({ message: 'Unauthorized' })
+
+    const result = await DogPropose.deleteOne()
 
     const reply = `Dog proposal with ID ${result._id} deleted`
 
@@ -77,7 +93,8 @@ const deleteDogPropose = async (req, res) => {
 }
 
 module.exports = {
-    getAllDogProposes,
+    getProposedDogs,
+    getUserDogProposals,
     createNewDogPropose,
     deleteDogPropose
 }

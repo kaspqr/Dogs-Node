@@ -4,19 +4,21 @@ const usersController = require('../controllers/usersController')
 const verifyJWT = require('../middleware/verifyJWT')
 
 router.route('/')
-    .get(usersController.getAllUsers) // No need to verify for the GET method
-    .post(usersController.createNewUser) // No need to verify in order to create a new user
-
+    .get(usersController.getUsers)
+    .post(usersController.createNewUser)
     .patch(verifyJWT, usersController.updateUser)
     .delete(verifyJWT, usersController.deleteUser)
 
-router.route('/:id/verify/:token')
+router.route('/:id')
+    .get(usersController.getUserById)
+
+/* router.route('/:id/verify/:token')
     .get(usersController.verifyEmail)
 
 router.route('/:id/verifyemail/:emailtoken')
     .get(usersController.verifyNewEmail)
 
 router.route('/resetpassword')
-    .patch(usersController.resetPassword)
+    .patch(usersController.resetPassword) */
 
 module.exports = router
